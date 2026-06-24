@@ -2,6 +2,9 @@ import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 import { tokens } from '../theme/tokens';
 import ProceduralRoom from './ProceduralRoom';
+import Painting from './Painting';
+import { mounts } from '../data/layout';
+import { artworks } from '../data/artworks';
 
 export default function GalleryCanvas() {
   return (
@@ -16,6 +19,10 @@ export default function GalleryCanvas() {
       <ambientLight intensity={0.5} />
       <Suspense fallback={null}>
         <ProceduralRoom />
+        {mounts.map((m) => {
+          const art = artworks.find((a) => a.id === m.artworkId)!;
+          return <Painting key={m.artworkId} mount={m} artwork={art} />;
+        })}
       </Suspense>
     </Canvas>
   );
