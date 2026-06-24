@@ -5,3 +5,5 @@ body { background: #0B0B0C; color: #EDEAE3; overflow: hidden; font-family: 'Corm
 canvas { display: block; }
 .u-mono { font-family: 'Space Mono', ui-monospace, monospace; }
 :focus-visible { outline: 2px solid #E0B85A; outline-offset: 2px; }
+@keyframes aurumFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { @keyframes aurumFade { from { opacity: 1; } to { opacity: 1; } } }
