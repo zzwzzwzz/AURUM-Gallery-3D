@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 import { ScrollControls } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import { tokens } from '../theme/tokens';
 import ProceduralRoom from './ProceduralRoom';
 import Painting from './Painting';
@@ -13,7 +14,7 @@ export default function GalleryCanvas() {
     <Canvas
       dpr={[1, 2]}
       camera={{ position: [0, 1.6, 10], fov: 55, near: 0.1, far: 100 }}
-      gl={{ antialias: true }}
+      gl={{ antialias: true, toneMappingExposure: 1.1 }}
       style={{ position: 'fixed', inset: 0 }}
     >
       <color attach="background" args={[tokens.color.bg]} />
@@ -32,6 +33,14 @@ export default function GalleryCanvas() {
           })}
         </ScrollControls>
       </Suspense>
+      {/* Postprocessing: composer must be last child (outside Suspense) so it composites
+          over the fully-rendered scene. enableNormalPass={false} skips the normal-pass
+          render (v2.19 API — the brief used the old disableNormalPass prop which no longer
+          exists; the inverse boolean achieves the same result). */}
+      <EffectComposer enableNormalPass={false}>
+        <Bloom mipmapBlur intensity={0.7} luminanceThreshold={0.55} luminanceSmoothing={0.2} />
+        <Vignette eskil={false} offset={0.25} darkness={0.85} />
+      </EffectComposer>
     </Canvas>
   );
 }
