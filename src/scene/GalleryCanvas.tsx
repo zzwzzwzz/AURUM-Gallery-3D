@@ -12,9 +12,13 @@ import { mounts } from '../data/layout';
 import { artworks } from '../data/artworks';
 
 export default function GalleryCanvas() {
+  // Detect small/mobile screens at mount time to lower GPU cost.
+  // matchMedia guard keeps this safe in SSR / test environments where window is absent.
+  const isSmall = typeof matchMedia !== 'undefined' && matchMedia('(max-width: 640px)').matches;
+
   return (
     <Canvas
-      dpr={[1, 2]}
+      dpr={[1, isSmall ? 1.5 : 2]}
       camera={{ position: [0, 1.6, 10], fov: 55, near: 0.1, far: 100 }}
       gl={{ antialias: true, toneMappingExposure: 1.1 }}
       style={{ position: 'fixed', inset: 0 }}
@@ -40,7 +44,7 @@ export default function GalleryCanvas() {
           render (v2.19 API — the brief used the old disableNormalPass prop which no longer
           exists; the inverse boolean achieves the same result). */}
       <EffectComposer enableNormalPass={false}>
-        <Bloom mipmapBlur intensity={0.7} luminanceThreshold={0.55} luminanceSmoothing={0.2} />
+        <Bloom mipmapBlur intensity={isSmall ? 0.5 : 0.7} luminanceThreshold={0.55} luminanceSmoothing={0.2} />
         <Vignette eskil={false} offset={0.25} darkness={0.85} />
       </EffectComposer>
     </Canvas>

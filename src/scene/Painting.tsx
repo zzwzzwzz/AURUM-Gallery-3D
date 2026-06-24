@@ -25,7 +25,7 @@
  *
  * 3. Click-to-focus uses useScroll().el (HTMLDivElement) confirmed in ScrollControlsState
  *    type definition. scroll.el.scrollTo({ top, behavior:'smooth' }) is the correct API.
- *    artwork.id is 1-based; total artworks is 8 — target band = (id-1)/(8-1) mapped to
+ *    artwork.id is 1-based; total = artworks.length — target band = (id-1)/(total-1) mapped to
  *    scrollable range.
  */
 
@@ -34,6 +34,7 @@ import { Image, useTexture, useCursor, useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 import type { MountPoint } from '../data/layout';
 import type { Artwork } from '../data/artworks';
+import { artworks } from '../data/artworks';
 import { tokens } from '../theme/tokens';
 import WallLabel from './WallLabel';
 
@@ -56,8 +57,9 @@ export default function Painting({ mount, artwork }: PaintingProps) {
   const scroll = useScroll();
   const focusThis = () => {
     // Map this artwork's 1-based id to a 0..1 band within the scroll range.
-    const TOTAL = 8;
-    const target = (artwork.id - 1) / (TOTAL - 1);
+    // artworks.length replaces the former hardcoded TOTAL=8 — stays correct if artworks grow.
+    const total = artworks.length;
+    const target = (artwork.id - 1) / (total - 1);
     scroll.el.scrollTo({
       top: target * (scroll.el.scrollHeight - scroll.el.clientHeight),
       behavior: 'smooth',

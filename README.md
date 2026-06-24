@@ -1,32 +1,21 @@
-# React + TypeScript + Vite
+# AURUM — Immersive Gallery (v2)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Scroll-driven 3D gallery for the (fictional) AURUM gallery. Built with Vite + React + TypeScript + react-three-fiber. Scroll to walk a multi-room gallery; a side panel narrates the active work.
 
-Currently, two official plugins are available:
+## Run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev     # procedural room — runs with no external assets
+npm test
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Swapping in the Sketchfab room
+
+See `docs/superpowers/plans/2026-06-24-aurum-immersive-gallery.md`, Task 12 Step 5.
+
+## Credits (required)
+
+- Gallery model: **VR Gallery House (baked)** by **Elin (@ElinHohler)** on Sketchfab — CC BY 4.0.
+- Artworks: **The Met Open Access** (CC0).
+- A fictional gallery / design study. Sandbox only.
