@@ -4,7 +4,7 @@ import { tokens } from '../theme/tokens';
 
 export default function SidePanel() {
   const activeIndex = useGalleryStore((s) => s.activeIndex);
-  const art = artworks[activeIndex];
+  const art = artworks[activeIndex] ?? artworks[0];
   return (
     <aside
       aria-live="polite"

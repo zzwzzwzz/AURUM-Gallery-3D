@@ -27,6 +27,10 @@
  *    type definition. scroll.el.scrollTo({ top, behavior:'smooth' }) is the correct API.
  *    artwork.id is 1-based; total = artworks.length — target band = (id-1)/(total-1) mapped to
  *    scrollable range.
+ *
+ * 4. Per-painting TextureErrorBoundary wraps ArtPlane so a 404 / network error for one
+ *    painting degrades gracefully to an empty matte (FramePlaceholder) without affecting
+ *    the rest of the gallery or hanging the canvas Suspense.
  */
 
 import { useMemo, useState } from 'react';
@@ -37,27 +41,28 @@ import type { Artwork } from '../data/artworks';
 import { artworks } from '../data/artworks';
 import { tokens } from '../theme/tokens';
 import WallLabel from './WallLabel';
+import TextureErrorBoundary from './TextureErrorBoundary';
 
 interface PaintingProps {
   mount: MountPoint;
   artwork: Artwork;
 }
 
-export default function Painting({ mount, artwork }: PaintingProps) {
-  // Stable spotlight target — created once per Painting instance so the <primitive>
-  // always holds the same Object3D reference across re-renders.
-  const lightTarget = useMemo(() => new THREE.Object3D(), []);
+// ---------------------------------------------------------------------------
+// ArtPlane — the texture-loading subtree. Suspends (via useTexture) until the
+// image is ready; throws on rejection — caught by the wrapping ErrorBoundary.
+// ---------------------------------------------------------------------------
+interface ArtPlaneProps {
+  mount: MountPoint;
+  artwork: Artwork;
+}
 
-  // Hover state for pointer-cursor affordance (useCursor sets document.body cursor style).
+function ArtPlane({ mount, artwork }: ArtPlaneProps) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
 
-  // useScroll() is valid here because Painting is always rendered inside <ScrollControls>.
-  // scroll.el is the HTMLDivElement scroll container; we drive it programmatically on click.
   const scroll = useScroll();
   const focusThis = () => {
-    // Map this artwork's 1-based id to a 0..1 band within the scroll range.
-    // artworks.length replaces the former hardcoded TOTAL=8 — stays correct if artworks grow.
     const total = artworks.length;
     const target = (artwork.id - 1) / (total - 1);
     scroll.el.scrollTo({
@@ -66,16 +71,14 @@ export default function Painting({ mount, artwork }: PaintingProps) {
     });
   };
 
-  // useTexture suspends until the texture is fully loaded (inside <Suspense>), so by the
-  // time this component renders the texture is resolved and its natural dimensions are
-  // available synchronously — no onLoad callback or state needed.
+  // useTexture suspends until resolved; rejects (404/net error) → ErrorBoundary catches.
   const texture = useTexture(artwork.src);
   const img = texture.image as HTMLImageElement | undefined;
   const aspect = img?.naturalWidth && img.naturalHeight
     ? img.naturalWidth / img.naturalHeight
     : img?.width && img.height
       ? img.width / img.height
-      : 1; // width / height
+      : 1;
 
   const w = mount.width;
   const h = w / aspect;
@@ -85,7 +88,7 @@ export default function Painting({ mount, artwork }: PaintingProps) {
   const fh = h + 0.18;
 
   return (
-    <group position={mount.position} rotation={[0, mount.rotationY, 0]}>
+    <>
       {/* Dark frame slab slightly behind the art plane */}
       <mesh position={[0, 0, -0.03]}>
         <boxGeometry args={[fw, fh, 0.06]} />
@@ -110,8 +113,67 @@ export default function Painting({ mount, artwork }: PaintingProps) {
         onPointerOut={() => setHovered(false)}
         onClick={focusThis}
       />
+    </>
+  );
+}
 
-      <WallLabel artwork={artwork} width={w} />
+// ---------------------------------------------------------------------------
+// FramePlaceholder — shown when the texture load fails. Renders an empty,
+// on-brand matted frame so the slot reads as intentionally empty, not broken.
+// Sized to a sane default aspect (1.25) that approximates a portrait canvas.
+// ---------------------------------------------------------------------------
+const DEFAULT_ASPECT = 1.25; // width / height — portrait-ish default
+
+interface FramePlaceholderProps {
+  mount: MountPoint;
+}
+
+function FramePlaceholder({ mount }: FramePlaceholderProps) {
+  const w = mount.width;
+  const h = w / DEFAULT_ASPECT;
+  const fw = w + 0.18;
+  const fh = h + 0.18;
+
+  return (
+    <>
+      {/* Dark frame slab */}
+      <mesh position={[0, 0, -0.03]}>
+        <boxGeometry args={[fw, fh, 0.06]} />
+        <meshStandardMaterial color="#0b0b0b" roughness={0.8} metalness={0.0} />
+      </mesh>
+      {/* Muted wall-tone matte — reads as an empty canvas, no gold */}
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[w, h]} />
+        <meshBasicMaterial color={tokens.color.wall} />
+      </mesh>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Painting — outer component. Spotlight and WallLabel are outside the
+// ErrorBoundary so they always render regardless of texture outcome.
+// ---------------------------------------------------------------------------
+export default function Painting({ mount, artwork }: PaintingProps) {
+  // Stable spotlight target — created once per Painting instance so the <primitive>
+  // always holds the same Object3D reference across re-renders.
+  const lightTarget = useMemo(() => new THREE.Object3D(), []);
+
+  return (
+    <group position={mount.position} rotation={[0, mount.rotationY, 0]}>
+      {/*
+        TextureErrorBoundary wraps only ArtPlane (the texture-dependent subtree).
+        - While loading: useTexture throws a Promise → caught by canvas <Suspense>, fine.
+        - On 404/error: loader rejects → React re-throws into the tree → ErrorBoundary
+          catches via getDerivedStateFromError → renders FramePlaceholder for this
+          painting only. The canvas Suspense is NOT involved, so it resolves normally
+          and the loading bar does not hang.
+      */}
+      <TextureErrorBoundary fallback={<FramePlaceholder mount={mount} />}>
+        <ArtPlane mount={mount} artwork={artwork} />
+      </TextureErrorBoundary>
+
+      <WallLabel artwork={artwork} width={mount.width} />
 
       {/*
         Warm per-painting spotlight.
