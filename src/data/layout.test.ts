@@ -18,6 +18,11 @@ describe('gallery layout', () => {
     const mid = sampleRail(curve, 0.5);
     expect(mid.look.distanceTo(mid.pos)).toBeGreaterThan(0); // looks ahead, not at itself
   });
+  it('sampleRail look never collapses onto pos at the end of the rail', () => {
+    const curve = buildRail(railPoints);
+    const end = sampleRail(curve, 1);
+    expect(end.look.distanceTo(end.pos)).toBeGreaterThan(0);
+  });
   it('the rail changes horizontal direction (a real turn exists)', () => {
     const curve = buildRail(railPoints);
     const t0 = curve.getTangentAt(0.05);

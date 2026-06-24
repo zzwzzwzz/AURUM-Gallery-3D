@@ -21,8 +21,8 @@ export const mounts: MountPoint[] = [
   { artworkId: 5, position: [-WALL_X, HANG, -6], rotationY: Math.PI / 2,  width: 2.4 }, // L
   { artworkId: 6, position: [ WALL_X, HANG, -9], rotationY: -Math.PI / 2, width: 2.6 }, // R
   // Room B (after the right turn): camera travels +X; these face -X back toward the visitor path.
-  { artworkId: 7, position: [ 8.5, HANG, -16], rotationY: -Math.PI / 2, width: 2.6 },
-  { artworkId: 8, position: [ 8.5, HANG, -20], rotationY: -Math.PI / 2, width: 2.8 },
+  { artworkId: 7, position: [ 13.8, HANG, -16], rotationY: -Math.PI / 2, width: 2.6 },
+  { artworkId: 8, position: [ 13.8, HANG, -20], rotationY: -Math.PI / 2, width: 2.8 },
 ];
 
 // Camera rail: down the corridor, curve right at the doorway, into Room B, stop facing the far wall.
@@ -48,6 +48,9 @@ export function buildRail(points: [number, number, number][]): THREE.CatmullRomC
 export function sampleRail(curve: THREE.CatmullRomCurve3, t: number) {
   const clamped = Math.min(1, Math.max(0, t));
   const pos = curve.getPointAt(clamped);
-  const look = curve.getPointAt(Math.min(1, clamped + 0.04));
+  const ahead = Math.min(1, clamped + 0.04);
+  const look = ahead > clamped
+    ? curve.getPointAt(ahead)
+    : pos.clone().add(curve.getTangentAt(clamped)); // at t=1: look one unit along the tangent so it never collapses onto pos
   return { pos, look };
 }
