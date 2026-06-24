@@ -30,6 +30,7 @@ import * as THREE from 'three';
 import type { MountPoint } from '../data/layout';
 import type { Artwork } from '../data/artworks';
 import { tokens } from '../theme/tokens';
+import WallLabel from './WallLabel';
 
 interface PaintingProps {
   mount: MountPoint;
@@ -82,6 +83,8 @@ export default function Painting({ mount, artwork }: PaintingProps) {
         toneMapped={false}
         color="#eae7df"
       />
+
+      <WallLabel artwork={artwork} width={w} />
 
       {/*
         Warm per-painting spotlight.
