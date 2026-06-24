@@ -10,7 +10,8 @@
 
 ## Global Constraints
 
-- **Stack versions (pin in package.json):** `react@^18.3`, `react-dom@^18.3`, `three@^0.169`, `@react-three/fiber@^8.17`, `@react-three/drei@^9.114`, `@react-three/postprocessing@^2.16`, `zustand@^4.5`, `vite@^5.4`, `typescript@^5.5`, `vitest@^2.1`, `@testing-library/react@^16`, `jsdom@^25`.
+- **Stack versions (pin in package.json):** `react@^18.3`, `react-dom@^18.3` (LOAD-BEARING — `@react-three/fiber@^8` requires React 18; do NOT use React 19), `three@^0.169`, `@react-three/fiber@^8.17`, `@react-three/drei@^9.114`, `@react-three/postprocessing@^2.16`, `zustand@^4.5`, `vitest@^2.1`, `@testing-library/react@^16`, `jsdom@^25`. **Build toolchain tracks the current Vite react-ts template** (`vite@^8`, `@vitejs/plugin-react@^6`, `typescript@^6`) — verified building+testing green on 2026-06-24; these are build-time only and carry no r3f runtime impact, so we accept the template defaults rather than downgrade. (Amended from the original `vite@^5.4`/`typescript@^5.5` guess after Task 1.)
+- **Verification gate (every task):** `npm test` must pass AND `npx tsc --noEmit` must be clean (real typecheck — `vite build` alone does NOT typecheck). Subagents cannot eyeball the 3D scene; visual confirmation is the user's.
 - **Project location:** `~/aurum-gallery-3d/` (new sibling of `~/aurum-gallery`). All paths below are relative to this root.
 - **AURUM palette (verbatim):** bg `#0B0B0C`, wall `#18171a`, floor `#101012`, ceil `#0d0d0f`, warm white `#EDEAE3`, muted `#A39E92`, gold `#C9A24B`, bright gold `#E0B85A` (single accent only), spot `#ffe6b0`, hairline `rgba(201,162,75,0.18)`.
 - **Type:** Cormorant Garamond (headings/blurbs) + Space Mono (labels/numerals), Google Fonts `display=swap`, system fallbacks.
