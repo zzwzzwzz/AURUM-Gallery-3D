@@ -1,7 +1,7 @@
 /**
  * Painting.tsx — one framed artwork on its MountPoint, with a warm per-painting spotlight.
  *
- * API deviations from the brief (both justified):
+ * API deviations from the brief (all justified):
  *
  * 1. Aspect correction via useTexture (read synchronously), NOT onUpdate reading
  *    self.material.map.
@@ -22,10 +22,15 @@
  *    target.updateMatrixWorld() — the light keeps pointing at world-origin. Rendering the
  *    target as a <primitive> child of the same group adds it to the scene graph, making the
  *    spotlight correctly track local [0,0,0] (the art/wall centre).
+ *
+ * 3. Click-to-focus uses useScroll().el (HTMLDivElement) confirmed in ScrollControlsState
+ *    type definition. scroll.el.scrollTo({ top, behavior:'smooth' }) is the correct API.
+ *    artwork.id is 1-based; total artworks is 8 — target band = (id-1)/(8-1) mapped to
+ *    scrollable range.
  */
 
-import { useMemo } from 'react';
-import { Image, useTexture } from '@react-three/drei';
+import { useMemo, useState } from 'react';
+import { Image, useTexture, useCursor, useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 import type { MountPoint } from '../data/layout';
 import type { Artwork } from '../data/artworks';
@@ -41,6 +46,23 @@ export default function Painting({ mount, artwork }: PaintingProps) {
   // Stable spotlight target — created once per Painting instance so the <primitive>
   // always holds the same Object3D reference across re-renders.
   const lightTarget = useMemo(() => new THREE.Object3D(), []);
+
+  // Hover state for pointer-cursor affordance (useCursor sets document.body cursor style).
+  const [hovered, setHovered] = useState(false);
+  useCursor(hovered);
+
+  // useScroll() is valid here because Painting is always rendered inside <ScrollControls>.
+  // scroll.el is the HTMLDivElement scroll container; we drive it programmatically on click.
+  const scroll = useScroll();
+  const focusThis = () => {
+    // Map this artwork's 1-based id to a 0..1 band within the scroll range.
+    const TOTAL = 8;
+    const target = (artwork.id - 1) / (TOTAL - 1);
+    scroll.el.scrollTo({
+      top: target * (scroll.el.scrollHeight - scroll.el.clientHeight),
+      behavior: 'smooth',
+    });
+  };
 
   // useTexture suspends until the texture is fully loaded (inside <Suspense>), so by the
   // time this component renders the texture is resolved and its natural dimensions are
@@ -82,6 +104,9 @@ export default function Painting({ mount, artwork }: PaintingProps) {
         transparent
         toneMapped={false}
         color="#eae7df"
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        onClick={focusThis}
       />
 
       <WallLabel artwork={artwork} width={w} />
