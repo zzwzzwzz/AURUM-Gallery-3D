@@ -3,13 +3,16 @@
  *
  * API deviations from the brief (both justified):
  *
- * 1. Aspect correction via useTexture + onLoad, NOT onUpdate reading self.material.map.
+ * 1. Aspect correction via useTexture (read synchronously), NOT onUpdate reading
+ *    self.material.map.
  *    Reason: drei <Image> uses a custom shaderMaterial (not a standard MeshStandardMaterial)
  *    whose texture lives in a `map` uniform, not `material.map`. The onUpdate callback fires
  *    on the forwarded THREE.Mesh ref but the texture is not guaranteed to be assigned at that
- *    point, and self.material is typed as Material (no .map). Instead, useTexture with an
- *    onLoad callback reads texture.image.{naturalWidth,naturalHeight} directly from the
- *    HTMLImageElement — this is the idiomatic drei pattern and fires reliably after load.
+ *    point, and self.material is typed as Material (no .map). Instead, useTexture suspends
+ *    until the texture is fully loaded, so we read texture.image.{naturalWidth,naturalHeight}
+ *    synchronously on render — the texture is already resolved by the time we render. The
+ *    <Image url> below calls useTexture on the same src, which is a shared THREE.Cache hit
+ *    (no extra fetch).
  *
  * 2. Spotlight targeting via a stable Object3D ref rendered as a <primitive> scene child,
  *    NOT via the `target-position` prop alone.
@@ -21,7 +24,7 @@
  *    spotlight correctly track local [0,0,0] (the art/wall centre).
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Image, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import type { MountPoint } from '../data/layout';
@@ -34,24 +37,20 @@ interface PaintingProps {
 }
 
 export default function Painting({ mount, artwork }: PaintingProps) {
-  const [aspect, setAspect] = useState(1); // width / height; updated on texture load
-
   // Stable spotlight target — created once per Painting instance so the <primitive>
   // always holds the same Object3D reference across re-renders.
   const lightTarget = useMemo(() => new THREE.Object3D(), []);
 
-  // Load texture so we can read natural image dimensions.
-  // useTexture suspends until the texture is ready (inside <Suspense>), so the component
-  // re-renders after the image loads. The onLoad callback fires on that resolved texture.
-  useTexture(artwork.src, (tex) => {
-    const t = tex as THREE.Texture;
-    const img = t.image as HTMLImageElement | undefined;
-    if (img?.naturalWidth && img.naturalHeight) {
-      setAspect(img.naturalWidth / img.naturalHeight);
-    } else if (img?.width && img.height) {
-      setAspect(img.width / img.height);
-    }
-  });
+  // useTexture suspends until the texture is fully loaded (inside <Suspense>), so by the
+  // time this component renders the texture is resolved and its natural dimensions are
+  // available synchronously — no onLoad callback or state needed.
+  const texture = useTexture(artwork.src);
+  const img = texture.image as HTMLImageElement | undefined;
+  const aspect = img?.naturalWidth && img.naturalHeight
+    ? img.naturalWidth / img.naturalHeight
+    : img?.width && img.height
+      ? img.width / img.height
+      : 1; // width / height
 
   const w = mount.width;
   const h = w / aspect;
