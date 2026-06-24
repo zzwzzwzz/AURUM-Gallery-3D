@@ -1,0 +1,7 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body { background: #0B0B0C; color: #EDEAE3; overflow: hidden; font-family: 'Cormorant Garamond', Georgia, serif; }
+canvas { display: block; }
+.u-mono { font-family: 'Space Mono', ui-monospace, monospace; }
+:focus-visible { outline: 2px solid #E0B85A; outline-offset: 2px; }
