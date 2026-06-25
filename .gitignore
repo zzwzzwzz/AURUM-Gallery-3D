@@ -5,9 +5,6 @@ node_modules
 dist
 dist-ssr
 
-# large 3D assets (room model dropped in locally)
-public/models/*.glb
-
 # local env / secrets
 .env
 .env.*

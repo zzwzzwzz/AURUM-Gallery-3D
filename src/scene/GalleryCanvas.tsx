@@ -3,9 +3,7 @@ import { Suspense } from 'react';
 import { ScrollControls } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import { tokens } from '../theme/tokens';
-import { config } from '../config';
 import ProceduralRoom from './ProceduralRoom';
-import GltfRoom from './GltfRoom';
 import CeilingLights from './CeilingLights';
 import Furniture from './Furniture';
 import Painting from './Painting';
@@ -35,7 +33,7 @@ export default function GalleryCanvas() {
             remain world-static — only the camera moves, driven by CameraRig's useFrame. */}
         <ScrollControls pages={4} damping={0.25}>
           <CameraRig />
-          {config.useGltfRoom ? <GltfRoom url={config.gltfUrl} /> : <ProceduralRoom />}
+          <ProceduralRoom />
           <CeilingLights />
           <Furniture />
           {mounts.map((m) => {

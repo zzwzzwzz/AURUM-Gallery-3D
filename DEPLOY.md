@@ -14,10 +14,10 @@ This is a **static Vite + React SPA** (no server/backend). `npm run build` emits
 
 ## Option 1 — Git-connected (auto-deploy on push) — recommended
 
-1. **Push this repo to GitHub** (personal account `zzwzzwzz`):
+1. **Push this repo to GitHub** — already linked to
+   `https://github.com/zzwzzwzz/AURUM-Gallery-3D` (personal account `zzwzzwzz`):
    ```bash
-   gh repo create aurum-gallery-3d --private --source=. --remote=origin --push
-   # or: git remote add origin git@github.com:zzwzzwzz/aurum-gallery-3d.git && git push -u origin main
+   git push
    ```
 2. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → pick the repo.
 3. Build settings:
@@ -54,14 +54,14 @@ Because `ziwenzhou.com` is already on Cloudflare, this is a couple of clicks:
 - [x] `Fallback.tsx` link points to the real site (`https://ziwenzhou.com`).
 - [x] `.nvmrc` pins Node 22 so the Cloudflare build matches local.
 - [ ] `npm run build` succeeds locally (CI parity).
-- [ ] `git push` to `zzwzzwzz` (Option 1) — repo currently has no remote.
+- [x] `git push` to `zzwzzwzz/AURUM-Gallery-3D` — remote linked.
 
 ## Notes
 
 - **Single page, no client router** → no SPA fallback / `_redirects` needed (only `/`).
 - **Assets ≈ 5–6 MB** (9 paintings at 1800px + three.js bundle) — well within Pages' free tier;
   served from Cloudflare's CDN.
-- **Procedural room is the default** — no external model asset is fetched, so the build is
-  self-contained. (The optional GLB room path stays off.)
+- **Procedural room** — the gallery is generated in code, so no external model asset is
+  fetched and the build is fully self-contained.
 - **Licensing for a public deploy:** art = The Met Open Access (CC0); fonts = Google
   Fonts (OFL). No production data. Safe to publish.
