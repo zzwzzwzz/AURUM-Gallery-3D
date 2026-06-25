@@ -31,6 +31,7 @@ A scroll-driven **3D** gallery for the (fictional) AURUM gallery. The immersive 
 - `@react-three/postprocessing` v2.19: use `enableNormalPass={false}` (the old `disableNormalPass` was removed).
 - Met images are **self-hosted** under `public/art/` (no external hotlinks); the per-painting `TextureErrorBoundary` still degrades a load failure to an empty matte — don't remove it.
 - `sampleRail` look-ahead must not collapse onto `pos` at the rail end (would NaN `lookAt`) — it's guarded.
+- **Cloudflare deploy / `npm ci`:** vite@8 (rolldown) lists esbuild as a `peerOptional` (`^0.27||^0.28`) it never uses. `npm install` omits it from the lockfile but `npm ci` requires it, so Cloudflare's `npm clean-install` breaks (EBADPLATFORM, then EUSAGE). Fixed by pinning `"overrides": { "esbuild": "0.21.5" }` in `package.json` (the version vitest's vite@5 actually needs). Don't remove it. Regenerate/verify lockfiles with the Cloudflare toolchain (Node 22 / npm 10.9.2), not local Node 24 / npm 11 — they resolve this peer differently.
 
 ## Accessibility guardrails (every change)
 `prefers-reduced-motion` (camera snaps) · no-WebGL/load-error → link to the 2D AURUM gallery (`Fallback.tsx` href is a **TODO placeholder** — set the real URL before any deploy) · keyboard-scrollable · `aria-live` side panel · visible `:focus-visible`.
