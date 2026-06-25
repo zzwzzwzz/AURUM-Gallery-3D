@@ -25,7 +25,7 @@ export default function IntroGate() {
       }}
     >
       <div className="u-mono" style={{ fontSize: 11, letterSpacing: '0.42em', color: tokens.color.gold, marginBottom: 18 }}>
-        ＡＵＲＵＭ&nbsp;&nbsp;COLLECTION
+        AURUM&nbsp;GALLERY&nbsp;COLLECTION
       </div>
       <h1 style={{
         fontFamily: tokens.font.serif, fontWeight: 400, margin: 0,
@@ -39,7 +39,7 @@ export default function IntroGate() {
         fontFamily: tokens.font.serif, fontStyle: 'italic', margin: 0, maxWidth: 540,
         fontSize: 'clamp(16px, 2.4vw, 23px)', lineHeight: 1.5, color: '#3a372f',
       }}>
-        Nine public-domain masterworks, hung in a quiet hall. Walk it slowly — one painting at a time.
+        An experimental 3D Art Gallery built with Claude.
       </p>
       <div className="u-mono" style={{ marginTop: 34, fontSize: 11, letterSpacing: '0.34em', color: '#8a8576' }}>
         SCROLL TO ENTER&nbsp; ↓

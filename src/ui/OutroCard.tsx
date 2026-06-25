@@ -22,40 +22,36 @@ export default function OutroCard() {
         opacity: a,
       }}
     >
-      <div className="u-mono" style={{ fontSize: 11, letterSpacing: '0.5em', color: tokens.color.gold, marginBottom: 16 }}>
-        — FIN —
-      </div>
       <h2 style={{
         fontFamily: tokens.font.serif, fontWeight: 400, margin: 0,
-        fontSize: 'clamp(34px, 7vw, 76px)', letterSpacing: '0.2em', color: tokens.color.warmWhite,
+        fontSize: 'clamp(40px, 8vw, 84px)', letterSpacing: '0.2em', color: tokens.color.warmWhite,
         textIndent: '0.2em',
       }}>
         AURUM
       </h2>
       <p style={{
-        fontFamily: tokens.font.serif, fontStyle: 'italic', margin: '18px 0 0',
-        fontSize: 'clamp(15px, 2.2vw, 21px)', color: tokens.color.muted, maxWidth: 460, lineHeight: 1.5,
+        fontFamily: tokens.font.serif, fontStyle: 'italic', margin: '20px 0 0',
+        fontSize: 'clamp(16px, 2.3vw, 22px)', color: tokens.color.muted, lineHeight: 1.5,
       }}>
-        Thank you for walking the hall.
+        Thank you for visiting
       </p>
 
-      {/* Personal credit */}
-      <div style={{ marginTop: 30, fontFamily: tokens.font.serif, fontSize: 'clamp(14px, 1.9vw, 18px)', color: tokens.color.warmWhite }}>
-        Designed by <span style={{ fontStyle: 'italic' }}>Ziwen Zhou</span>
+      {/* Personal credit — the name itself links out. */}
+      <div style={{ marginTop: 28, fontFamily: tokens.font.serif, fontSize: 'clamp(15px, 2vw, 19px)', color: tokens.color.warmWhite }}>
+        Designed by{' '}
+        <a
+          href="https://ziwenzhou.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          tabIndex={a < 0.5 ? -1 : 0}
+          style={{ color: tokens.color.warmWhite, fontStyle: 'italic', textDecoration: 'underline', textUnderlineOffset: 4, textDecorationColor: tokens.color.gold, pointerEvents: 'auto' }}
+        >
+          Ziwen Zhou&nbsp;↗
+        </a>
       </div>
-      <a
-        href="https://ziwenzhou.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="u-mono"
-        tabIndex={a < 0.5 ? -1 : 0}
-        style={{ marginTop: 6, fontSize: 12, letterSpacing: '0.18em', color: tokens.color.muted, textDecoration: 'none', pointerEvents: 'auto' }}
-      >
-        ziwenzhou.com ↗
-      </a>
 
-      <div className="u-mono" style={{ marginTop: 26, fontSize: 10, letterSpacing: '0.16em', color: tokens.color.muted, opacity: 0.7 }}>
-        art: The Met — Open Access (CC0) · in the public domain
+      <div className="u-mono" style={{ marginTop: 22, fontSize: 10, letterSpacing: '0.16em', color: tokens.color.muted, opacity: 0.75 }}>
+        Art: The Met — Open Access (CC0)
       </div>
     </div>
   );

@@ -11,9 +11,10 @@ export default function Overlay() {
           immersive · beta
         </span>
       </header>
-      <div className="u-mono" style={{ position: 'fixed', bottom: 18, right: 'clamp(16px,4vw,56px)', fontSize: 10, color: tokens.color.muted, pointerEvents: 'none', textAlign: 'right', lineHeight: 1.6 }}>
+      <div className="u-mono" style={{ position: 'fixed', bottom: 18, right: 'clamp(16px,4vw,56px)', fontSize: 10, color: tokens.color.muted, pointerEvents: 'none', textAlign: 'right', lineHeight: 1.7 }}>
         scroll to walk the gallery<br />
-        <span style={{ opacity: 0.7 }}>model: VR Gallery House by Elin (CC BY 4.0) · art: The Met (CC0)</span>
+        click a painting to bring it forward<br />
+        <span style={{ opacity: 0.7 }}>art: The Met — Open Access (CC0)</span>
       </div>
     </>
   );

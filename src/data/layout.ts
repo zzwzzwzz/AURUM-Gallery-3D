@@ -16,7 +16,8 @@ const HANG = 1.7;       // side-painting center height
 const WALL_X = 3.2;     // side paintings at x = ∓WALL_X
 const START_Z = 9;      // camera z at offset 0 (gate)
 const END_Z = -21;      // camera z while viewing the hero (≈5 units from the hero wall)
-const FAR_Z = -26;      // far wall (hero painting) z
+const FAR_Z = -26;      // far wall z
+const HERO_Z = FAR_Z + 0.4; // hero hangs just IN FRONT of the far wall (no z-fight with it)
 const HERO_Y = 1.75;
 const HERO_W = 1.5;
 
@@ -35,7 +36,7 @@ export const mounts: MountPoint[] = [
     rotationY: i % 2 === 0 ? Math.PI / 2 : -Math.PI / 2,
     width: sideW[i],
   })),
-  { artworkId: 9, position: [0, HERO_Y, FAR_Z], rotationY: 0, width: HERO_W },
+  { artworkId: 9, position: [0, HERO_Y, HERO_Z], rotationY: 0, width: HERO_W },
 ];
 
 export const HERO_INDEX = N_SIDE; // 8
@@ -43,7 +44,7 @@ export const HERO_INDEX = N_SIDE; // 8
 // Look targets per station (8 side painting centers + the hero center).
 const stationLook: THREE.Vector3[] = [
   ...sideZ.map((z, i) => new THREE.Vector3(i % 2 === 0 ? -WALL_X : WALL_X, HANG, z)),
-  new THREE.Vector3(0, HERO_Y, FAR_Z),
+  new THREE.Vector3(0, HERO_Y, HERO_Z),
 ];
 const forwardTarget = stationLook[HERO_INDEX]; // looking forward = looking at the hero wall
 
@@ -53,10 +54,11 @@ const forwardTarget = stationLook[HERO_INDEX]; // looking forward = looking at t
 // the hero a longer admire-hold, then a FIN tail where it stays on the hero and
 // the outro fades in. Offsets are normalised to [0,1] from arbitrary weights.
 // ---------------------------------------------------------------------------
-const LEAD = 1.2;        // entering from the gate to painting 1
+const OVERVIEW = 6.0;    // hold the full-hall overview after the gate fades, before P1
+const LEAD = 1.4;        // entering from the overview to painting 1
 const DWELL = 2.4;       // hold head-on at each side painting
-const TRAVEL = 1.4;      // move between paintings (facing forward)
-const HERO_DWELL = 3.0;  // longer hold to admire the hero
+const TRAVEL = 2.4;      // walk forward (facing front) between paintings — a longer gap
+const HERO_DWELL = 3.2;  // longer hold to admire the hero
 const FIN = 1.8;         // tail: hold on the hero while the outro fades in
 
 interface KF { o: number; z: number; f: number; st: number }
@@ -67,7 +69,9 @@ const dwellCenter: number[] = []; // offset that frames each station head-on
 
 (() => {
   let o = 0;
-  kf.push({ o, z: START_Z, f: 0, st: 0 });        // gate: forward, no focus
+  kf.push({ o, z: START_Z, f: 0, st: 0 });        // gate / overview (forward, no focus)
+  o += OVERVIEW;
+  kf.push({ o, z: START_Z, f: 0, st: 0 });        // hold the overview (the gate has faded by now)
   o += LEAD;
   const a0 = o; kf.push({ o, z: sideZ[0], f: 1, st: 0 });   // arrive P1
   o += DWELL; kf.push({ o, z: sideZ[0], f: 1, st: 0 });     // hold P1
