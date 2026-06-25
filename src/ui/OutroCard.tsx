@@ -1,13 +1,13 @@
 import { useGalleryStore } from '../store/galleryStore';
+import { OUTRO_FADE_START } from '../data/layout';
 import { tokens } from '../theme/tokens';
 
-// Creative ending — a frosted sign-off that bookends the intro gate. It fades in once
-// the visitor reaches the hero painting at the end of the hall. pointerEvents stay off.
-const FADE_START = 0.96;
-
+// Creative ending — a frosted sign-off bookending the intro gate. It fades in only
+// AFTER the hero admire-hold (OUTRO_FADE_START comes from the camera choreography),
+// so the visitor sees Madame X clearly, then scrolls the final stretch to the FIN.
 export default function OutroCard() {
   const offset = useGalleryStore((s) => s.offset);
-  const a = Math.min(1, Math.max(0, (offset - FADE_START) / (1 - FADE_START))); // 0 → 1 across the final sliver
+  const a = Math.min(1, Math.max(0, (offset - OUTRO_FADE_START) / (1 - OUTRO_FADE_START)));
   if (a <= 0.001) return null;
 
   return (
@@ -38,7 +38,23 @@ export default function OutroCard() {
       }}>
         Thank you for walking the hall.
       </p>
-      <div className="u-mono" style={{ marginTop: 30, fontSize: 10, letterSpacing: '0.18em', color: tokens.color.muted, opacity: 0.8 }}>
+
+      {/* Personal credit */}
+      <div style={{ marginTop: 30, fontFamily: tokens.font.serif, fontSize: 'clamp(14px, 1.9vw, 18px)', color: tokens.color.warmWhite }}>
+        Designed by <span style={{ fontStyle: 'italic' }}>Ziwen Zhou</span>
+      </div>
+      <a
+        href="https://ziwenzhou.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="u-mono"
+        tabIndex={a < 0.5 ? -1 : 0}
+        style={{ marginTop: 6, fontSize: 12, letterSpacing: '0.18em', color: tokens.color.muted, textDecoration: 'none', pointerEvents: 'auto' }}
+      >
+        ziwenzhou.com ↗
+      </a>
+
+      <div className="u-mono" style={{ marginTop: 26, fontSize: 10, letterSpacing: '0.16em', color: tokens.color.muted, opacity: 0.7 }}>
         art: The Met — Open Access (CC0) · in the public domain
       </div>
     </div>

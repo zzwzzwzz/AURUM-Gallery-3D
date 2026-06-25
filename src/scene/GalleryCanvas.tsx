@@ -6,6 +6,7 @@ import { tokens } from '../theme/tokens';
 import { config } from '../config';
 import ProceduralRoom from './ProceduralRoom';
 import GltfRoom from './GltfRoom';
+import CeilingLights from './CeilingLights';
 import Furniture from './Furniture';
 import Painting from './Painting';
 import CameraRig from './CameraRig';
@@ -35,6 +36,7 @@ export default function GalleryCanvas() {
         <ScrollControls pages={4} damping={0.25}>
           <CameraRig />
           {config.useGltfRoom ? <GltfRoom url={config.gltfUrl} /> : <ProceduralRoom />}
+          <CeilingLights />
           <Furniture />
           {mounts.map((m) => {
             const art = artworks.find((a) => a.id === m.artworkId)!;

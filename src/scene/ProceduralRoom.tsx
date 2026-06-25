@@ -9,12 +9,8 @@ const H = HALL.H;            // hall height (y: 0..4)
 const D = HALL.Z0 - HALL.Z1; // depth (z: 10..-26 = 36)
 const CZ = (HALL.Z0 + HALL.Z1) / 2; // center z = -8
 
-// Even, warm ceiling fixtures down the centerline (x=0 → symmetric L/R lighting).
-// No castShadow on purpose — 7 directional shadow maps would tank perf.
-const LIGHT_Z = [6, 1, -4, -9, -14, -19, -24];
-
-// Warm-classical hall: parquet floor, light coffered ceiling, paneled warm-white walls.
-// Lit by a symmetric row of warm ceiling lights (both side walls read equal — feedback #5).
+// Warm-classical hall shell: parquet floor, light coffered ceiling, paneled warm-white
+// walls. Lighting lives in <CeilingLights /> (recessed downlights) + canvas ambient/hemi.
 export default function ProceduralRoom() {
   const parquet = useMemo(makeParquetTexture, []);
   const coffer = useMemo(makeCofferTexture, []);
@@ -62,18 +58,6 @@ export default function ProceduralRoom() {
         <planeGeometry args={[W, H]} />
         <meshStandardMaterial color={tokens.color.wall} roughness={0.95} />
       </mesh>
-
-      {/* Warm indoor ceiling lights — even, symmetric (not a single raking sun). */}
-      {LIGHT_Z.map((z) => (
-        <pointLight
-          key={z}
-          position={[0, H / 2 - 0.5, z - CZ]}
-          intensity={7}
-          distance={13}
-          decay={2}
-          color={'#ffe9cf'}
-        />
-      ))}
     </group>
   );
 }
