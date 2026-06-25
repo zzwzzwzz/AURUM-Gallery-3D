@@ -4,7 +4,7 @@
 
 **Goal:** A scroll-driven 3D gallery website where the camera glides through a multi-room gallery (with turns), passing the 8 AURUM Met works on the walls while a side panel narrates the active piece — on-brand, accessible, runnable before any external asset is downloaded.
 
-**Architecture:** Vite + React + TypeScript + react-three-fiber. Scroll position (drei `ScrollControls`) maps to arc-length along a `CatmullRomCurve3`; the camera follows the curve and looks down its tangent, so rounding a corner is just continued scrolling. A tiny zustand store bridges canvas→DOM so the fixed AURUM overlay/side-panel can react to the active artwork. The room is a procedural charcoal box-gallery by default; Elin's Sketchfab GLB swaps in via one config flag. Postprocessing (bloom + vignette + warm tone) carries the AURUM "gold = light" look.
+**Architecture:** Vite + React + TypeScript + react-three-fiber. Scroll position (drei `ScrollControls`) maps to arc-length along a `CatmullRomCurve3`; the camera follows the curve and looks down its tangent, so rounding a corner is just continued scrolling. A tiny zustand store bridges canvas→DOM so the fixed AURUM overlay/side-panel can react to the active artwork. The room is a procedural charcoal box-gallery. Postprocessing (bloom + vignette + warm tone) carries the AURUM "gold = light" look.
 
 **Tech Stack:** Vite, React 18, TypeScript, three, @react-three/fiber, @react-three/drei, @react-three/postprocessing, zustand, Vitest + @testing-library/react + jsdom.
 
@@ -18,7 +18,7 @@
 - **Gold = light, never paint.** No gold fills/panels. One bright-gold accent max per view.
 - **Voice:** curatorial wall-label — short, present-tense, restrained. Never marketing copy.
 - **Artwork:** the 8 Met Open Access (CC0) works only; URLs verbatim from this plan.
-- **Credits (required):** model = "VR Gallery House (baked) by Elin (@ElinHohler), CC BY 4.0"; art = "The Met Open Access (CC0)". Shown in overlay credits + README.
+- **Credits (required):** art = "The Met Open Access (CC0)". Shown in overlay credits + README.
 - **A11y:** honor `prefers-reduced-motion`; no-WebGL/load-error → link to the 2D AURUM gallery; keyboard-scrollable; descriptive `alt`/labels; visible focus.
 - **Commit after every task.** Conventional commit messages.
 
@@ -41,7 +41,7 @@ cd ~ && npm create vite@latest aurum-gallery-3d -- --template react-ts
 cd ~/aurum-gallery-3d
 npm install three@^0.169 @react-three/fiber@^8.17 @react-three/drei@^9.114 @react-three/postprocessing@^2.16 zustand@^4.5
 npm install -D vitest@^2.1 @testing-library/react@^16 @testing-library/jest-dom@^6 jsdom@^25 @types/three@^0.169
-git init && printf "node_modules\ndist\npublic/models/*.glb\n.DS_Store\n" > .gitignore
+git init && printf "node_modules\ndist\n.DS_Store\n" > .gitignore
 ```
 
 - [ ] **Step 2: Configure Vitest** — create `vitest.config.ts`
@@ -653,7 +653,7 @@ import { artworks } from '../data/artworks';
 
 - [ ] **Step 3: Run + observe**
 
-Run: `npm run dev`. Expected: framed paintings appear on the corridor walls (and two in Room B), each lit by a warm pool on the wall. Images load (Met hotlink) after a moment; aspect ratios look correct (not stretched).
+Run: `npm run dev`. Expected: framed paintings appear on the corridor walls (and two in Room B), each lit by a warm pool on the wall. Images load (self-hosted under `public/art/`) after a moment; aspect ratios look correct (not stretched).
 
 - [ ] **Step 4: Commit**
 
@@ -916,7 +916,7 @@ export default function Overlay() {
       </header>
       <div className="u-mono" style={{ position: 'fixed', bottom: 18, right: 'clamp(16px,4vw,56px)', fontSize: 10, color: tokens.color.muted, pointerEvents: 'none', textAlign: 'right', lineHeight: 1.6 }}>
         scroll to walk the gallery<br />
-        <span style={{ opacity: 0.7 }}>model: VR Gallery House by Elin (CC BY 4.0) · art: The Met (CC0)</span>
+        <span style={{ opacity: 0.7 }}>art: The Met (CC0)</span>
       </div>
     </>
   );
@@ -1114,76 +1114,7 @@ git add -A && git commit -m "feat: loading bar, no-WebGL fallback, keyboard scro
 
 ---
 
-### Task 12: Swap-in path for the Sketchfab GLB room
-
-**Files:**
-- Create: `src/scene/GltfRoom.tsx`, `src/config.ts`
-- Modify: `src/scene/GalleryCanvas.tsx`
-
-**Interfaces:**
-- Produces: `<GltfRoom url={string} />` (loads + renders the baked GLB near-unlit); `config.useGltfRoom: boolean`, `config.gltfUrl: string`.
-- Consumes: drei `useGLTF`.
-
-- [ ] **Step 1: Config flag** — `src/config.ts`
-
-```ts
-// Flip to true after dropping Elin's model at public/models/gallery.glb.
-export const config = {
-  useGltfRoom: false,
-  gltfUrl: '/models/gallery.glb',
-} as const;
-```
-
-- [ ] **Step 2: GLB room** — `src/scene/GltfRoom.tsx`
-
-```tsx
-import { useGLTF } from '@react-three/drei';
-import { useLayoutEffect } from 'react';
-import * as THREE from 'three';
-
-export default function GltfRoom({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
-  // Baked model: show textures near-unlit so our color grade/post owns the mood.
-  useLayoutEffect(() => {
-    scene.traverse((o) => {
-      const mesh = o as THREE.Mesh;
-      if (mesh.isMesh) {
-        const m = mesh.material as THREE.MeshStandardMaterial;
-        if (m && 'roughness' in m) { m.roughness = 1; m.metalness = 0; }
-        mesh.castShadow = false; mesh.receiveShadow = true;
-      }
-    });
-  }, [scene]);
-  return <primitive object={scene} />;
-}
-```
-
-- [ ] **Step 3: Choose room by config** — modify `src/scene/GalleryCanvas.tsx`
-
-```tsx
-import { config } from '../config';
-import GltfRoom from './GltfRoom';
-// replace <ProceduralRoom /> with:
-{config.useGltfRoom ? <GltfRoom url={config.gltfUrl} /> : <ProceduralRoom />}
-```
-
-(When `useGltfRoom` is true, the `mounts`/`railPoints` in `src/data/layout.ts` are re-authored to the model’s rooms — see Step 5.)
-
-- [ ] **Step 4: Run + observe (procedural still default)**
-
-Run: `npm run dev`. Expected: unchanged (procedural room) because `useGltfRoom:false`. App still builds and runs with the GLB code path present.
-
-- [ ] **Step 5: Document the asset-fit procedure** — append to `README.md` (created in Task 13) a "Swapping in the Sketchfab room" section:
-  1. Download *VR Gallery House (baked)* (Elin) as glTF/GLB from Sketchfab; place at `public/models/gallery.glb`.
-  2. Set `config.useGltfRoom = true`.
-  3. Temporarily add drei `<TransformControls>` or log `camera.position` while flying to read wall coordinates; update `mounts[].position/rotationY/width` and `railPoints` in `src/data/layout.ts` to the model’s rooms (keep the layout tests passing — the turn assertion still holds).
-  4. Tune `Bloom`/`Vignette`/exposure so the baked textures read in the AURUM palette.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add -A && git commit -m "feat: config-gated Sketchfab GLB room path (procedural remains default)"
-```
+### Task 12: Swap-in path for a GLB room — REMOVED (never built; the gallery is procedural-only).
 
 ---
 
@@ -1226,11 +1157,7 @@ Scroll-driven 3D gallery for the (fictional) AURUM gallery. Built with Vite + Re
 - `npm run dev` (procedural room — runs with no external assets)
 - `npm test`
 
-## Swapping in the Sketchfab room
-See `docs/superpowers/plans/2026-06-24-aurum-immersive-gallery.md`, Task 12 Step 5.
-
 ## Credits (required)
-- Gallery model: **VR Gallery House (baked)** by **Elin (@ElinHohler)** on Sketchfab — CC BY 4.0.
 - Artworks: **The Met Open Access** (CC0).
 - A fictional gallery / design study. Sandbox only.
 ```
@@ -1251,9 +1178,9 @@ git add -A && git commit -m "feat: glossy floor, mobile/perf guard, README with 
 ## Self-Review
 
 **Spec coverage** (spec §→task):
-- §3 stack/deps → T1. §4 structure → T1–T13 (files match). §5 data models → T2 (Artwork), T4 (MountPoint/RailPoint). §6 environment/turn/rail/reduced-motion → T4, T5, T7, T12. §7 paintings/labels/side panel → T6, T8, T9. §8 AURUM skin → T1 (tokens), T6 (dimmed art), T9 (overlay), T10 (bloom/grade). §9 a11y/fallback → T7 (reduced motion), T11 (no-WebGL, loader, keyboard, alt/labels). §10 attribution → T9 (overlay credits), T13 (README). §11 scope → respected (no WebXR/audio/free-roam). §13 milestones → T1–T13 map onto the 5 milestones (procedural-first; GLB at T12).
+- §3 stack/deps → T1. §4 structure → T1–T13 (files match). §5 data models → T2 (Artwork), T4 (MountPoint/RailPoint). §6 environment/turn/rail/reduced-motion → T4, T5, T7. §7 paintings/labels/side panel → T6, T8, T9. §8 AURUM skin → T1 (tokens), T6 (dimmed art), T9 (overlay), T10 (bloom/grade). §9 a11y/fallback → T7 (reduced motion), T11 (no-WebGL, loader, keyboard, alt/labels). §10 attribution → T9 (overlay credits), T13 (README). §11 scope → respected (no WebXR/audio/free-roam). §13 milestones → T1–T13 map onto the milestones (procedural-only).
 - Gap check: "descriptive alt" — drei `<Image>` lacks an `alt`; the in-world `WallLabel` + `aria-live` SidePanel supply the equivalent accessible text. Acceptable (canvas content is announced via the DOM panel); noted for reviewer.
 
-**Placeholder scan:** No "TBD/TODO/handle edge cases" left. The two integration-time values (Fallback `href` to the 2D site; GLB coordinates) are explicitly flagged with how to fill them, not silent gaps.
+**Placeholder scan:** No "TBD/TODO/handle edge cases" left. The one integration-time value (Fallback `href` to the 2D site) is explicitly flagged with how to fill it, not a silent gap.
 
-**Type consistency:** `Artwork`/`MountPoint` field names (`id`, `title`, `artist`, `meta`, `src`, `blurb`; `artworkId`, `position`, `rotationY`, `width`) are used identically across T2, T4, T6, T8, T9. `offsetToIndex`, `buildRail`, `sampleRail`, `setOffset`, `useGalleryStore`, `config.useGltfRoom`/`gltfUrl` match across all consumers.
+**Type consistency:** `Artwork`/`MountPoint` field names (`id`, `title`, `artist`, `meta`, `src`, `blurb`; `artworkId`, `position`, `rotationY`, `width`) are used identically across T2, T4, T6, T8, T9. `offsetToIndex`, `buildRail`, `sampleRail`, `setOffset`, `useGalleryStore` match across all consumers.

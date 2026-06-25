@@ -10,11 +10,11 @@ Reshape the immersive gallery from a **dark charcoal corridor with a right-turn*
 paintings hang on side walls and are seen at an angle, into a **single warm-classical hall**
 where the visitor walks straight forward and the camera turns to face **one painting head-on,
 full, at a time**. The experience opens on a **title end-wall** bearing the gallery name.
-Artwork images are **self-hosted** (no more Met hotlinking).
+Artwork images are **self-hosted** under `public/art/`.
 
 This is driven by four pieces of user feedback, refined through brainstorming:
 
-1. Self-host specific paintings on the walls (download, no hotlink).
+1. Self-host specific paintings on the walls (download into `public/art/`).
 2. Open on a white/title wall with the gallery name; first scroll = natural walk forward; the
    first painting "slides in" as a **front (head-on) view, not a side angle**.
 3. Add a **natural floor and ceiling**; walls read **white** (warm-white).
@@ -28,7 +28,7 @@ This is driven by four pieces of user feedback, refined through brainstorming:
 | 2 | Spatial / navigation | **Forward, alternating** — walk straight down one hall; camera yaws to face each painting (alternating L/R walls) head-on, then straightens to the next. |
 | 3 | Artwork set | **Keep the current 8 Met CC0 works**, self-hosted into `public/art/`. |
 | 4 | Title wall | **In-scene 3D text** — `AURUM` rendered on the entrance end-wall (Cormorant serif + subtle gold glow). |
-| 5 | Room style | **Warm classical, procedural** — Image-1 reference: coffered ceiling, herringbone parquet floor, paneled warm-white walls, warm "window" light. Built procedurally (geometry + textures), **not** a GLB. |
+| 5 | Room style | **Warm classical, procedural** — Image-1 reference: coffered ceiling, herringbone parquet floor, paneled warm-white walls, warm "window" light. Built procedurally (geometry + textures). |
 
 Reference: the warm classical hall (coffered wood ceiling, parquet floor, paneled walls, raking
 sunlight) — explicitly chosen over the modern white-cube-with-freestanding-partitions look,
@@ -38,8 +38,6 @@ warmth fits the AURUM brand.
 ## Non-goals / out of scope
 
 - **Room B and the right-turn are removed.** The layout becomes a single straight hall.
-- **No GLB room.** The `config.useGltfRoom` path is left untouched and still optional; this work
-  targets the procedural room only.
 - **No new artworks or copy.** Titles, metadata, and curatorial blurbs are unchanged.
 - **No free-roam.** Still scroll-on-rails (mobile/a11y), per the existing architecture.
 - No daylight/bright white-cube; the room stays dim and spotlit.
@@ -128,10 +126,9 @@ Rebuild as a single warm-classical hall (one box long enough for 8 spaced painti
 - Change each `artworks[].src` from the `images.metmuseum.org` URL to its local
   `/art/NN-slug.jpg` path.
 - Titles, artists, metadata, and blurbs are **unchanged**.
-- `Painting.tsx`'s `TextureErrorBoundary → FramePlaceholder` stays as a safety net (should no
-  longer fire for hotlink 404s, but remains correct if a file is missing).
-- README/Overlay credit (Met CC0 for art; Elin CC-BY only relevant if/when the GLB is used)
-  stays accurate.
+- `Painting.tsx`'s `TextureErrorBoundary → FramePlaceholder` stays as a safety net (no longer
+  fires now that art is self-hosted, but remains correct if a file is missing).
+- README/Overlay credit (Met CC0 for art) stays accurate.
 
 ### 7. Tokens — `src/theme/tokens.ts`
 
@@ -139,8 +136,8 @@ Rebuild as a single warm-classical hall (one box long enough for 8 spaced painti
   ceiling. Keep `bg: #0B0B0C` (page/fallback behind canvas), `warmWhite`, `gold`, `goldBright`,
   `spot`, `hairline` as-is.
 - The old dark `wall`/`floor`/`ceil` charcoals are repurposed to the new warm values (or new
-  keys added and the room updated to use them) — chosen so the GLB path and any other consumer
-  aren't silently broken. Token tests updated to match.
+  keys added and the room updated to use them) — chosen so no other consumer is silently broken.
+  Token tests updated to match.
 
 ## Data flow
 
@@ -211,9 +208,8 @@ scroll.offset (0..1)
 
 ## Risks / open considerations
 
-- **Procedural classical fidelity.** Coffered ceiling + parquet via textures won't match a baked
-  GLB. Mitigation: good seamless CC0 maps + dim, spotlit framing hides flatness; GLB remains an
-  available upgrade path via `config.useGltfRoom`.
+- **Procedural classical fidelity.** Coffered ceiling + parquet via textures are stylized, not
+  photoreal. Mitigation: good seamless CC0 maps + dim, spotlit framing hides flatness.
 - **Head-on framing tuning.** Camera distance (centerline → wall ≈ `WALL_X`) vs painting width
   and FOV must be tuned so each work fills the view without clipping. Spacing and `WALL_X` are
   the knobs.

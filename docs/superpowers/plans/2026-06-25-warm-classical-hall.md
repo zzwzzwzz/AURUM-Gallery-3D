@@ -13,7 +13,7 @@
 - React MUST stay 18 (`react@^18.3`) — r3f@8 requires it. Do not bump.
 - Real typecheck is `npx tsc --noEmit` (vite build uses esbuild, does NOT typecheck).
 - Gold = light only (glow/hairline/one accent) — never gold fills/panels.
-- Procedural room is the default that ALWAYS runs — no external asset may be required for `npm run dev`. Do NOT `useGLTF.preload` anything at module scope.
+- Procedural room is the single room that ALWAYS runs — no external asset may be required for `npm run dev`. Do NOT fetch any model at module scope.
 - drei `<Image>` uses a shader-uniform `map`, not `material.map` (don't touch Painting's aspect logic).
 - A raw `<spotLight>` only aims if its `.target` is in the scene graph (Painting already handles this — leave it).
 - `@react-three/postprocessing` v2.19: `enableNormalPass={false}` (already correct).
@@ -627,7 +627,7 @@ Lower the fill lights for the dim mood — replace the two light lines (`<hemisp
 Render `<TitleWall />` right after the room, inside `<ScrollControls>`:
 
 ```tsx
-          {config.useGltfRoom ? <GltfRoom url={config.gltfUrl} /> : <ProceduralRoom />}
+          <ProceduralRoom />
           <TitleWall />
 ```
 
