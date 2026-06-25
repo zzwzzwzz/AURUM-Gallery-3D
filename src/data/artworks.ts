@@ -32,4 +32,7 @@ export const artworks: Artwork[] = [
   { id: 8, title: 'Six Jewel Rivers', artist: 'Utagawa Hiroshige', meta: '1857 · Woodblock',
     src: '/art/08-six-jewel-rivers.jpg',
     blurb: 'Hiroshige gathers six famous rivers into one elegant conceit, water carrying name and place across the print.' },
+  { id: 9, title: 'Madame X', artist: 'John Singer Sargent', meta: '1883–84 · Oil on canvas',
+    src: '/art/09-madame-x.jpg',
+    blurb: 'The gallery turns on her: a profile of cold marble against black, one strap once fallen. Scandal made her famous; the poise is what stays.' },
 ];

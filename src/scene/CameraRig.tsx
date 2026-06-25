@@ -1,30 +1,33 @@
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
-import { buildRail, railPoints, sampleRail, sampleLook, STATIONS } from '../data/layout';
+import { sampleCamera, stops } from '../data/layout';
 import { useGalleryStore } from '../store/galleryStore';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
+/** Nearest value in `arr` to `x` (for reduced-motion station snapping). */
+function nearest(arr: number[], x: number): number {
+  let best = arr[0];
+  for (const v of arr) if (Math.abs(v - x) < Math.abs(best - x)) best = v;
+  return best;
+}
+
 export default function CameraRig() {
   const scroll = useScroll();
-  const setOffset = useGalleryStore((s) => s.setOffset);
+  const setView = useGalleryStore((s) => s.setView);
   const reduced = useReducedMotion();
-  const curve = useMemo(() => buildRail(railPoints), []);
 
-  // Start looking at the title wall (offset 0) to avoid a first-frame swing.
-  const lookTarget = useRef<THREE.Vector3>(sampleLook(0));
+  // Start looking forward at the hero wall (offset 0) to avoid a first-frame swing.
+  const lookTarget = useRef<THREE.Vector3>(sampleCamera(0).look.clone());
 
   useFrame((state, delta) => {
     const raw = scroll.offset; // 0..1
-    // Reduced motion: snap to the nearest of the N discrete stations (title + 8 works).
-    const t = reduced ? Math.round(raw * (STATIONS - 1)) / (STATIONS - 1) : raw;
-    setOffset(t); // store the snapped value so the side panel matches the camera's station
+    // Reduced motion: snap to the nearest station (start, each painting, hero).
+    const t = reduced ? nearest(stops, raw) : raw;
+    const { pos, look, focus, index } = sampleCamera(t);
+    setView({ offset: t, focus, index });
 
-    const { pos } = sampleRail(curve, t);   // position: forward dolly
-    const look = sampleLook(t);             // look: eased across station anchors
-
-    // Frame-rate-independent easing; reduced-motion uses damp=1 for instant snap.
     const damp = reduced ? 1 : 1 - Math.pow(0.001, delta);
     state.camera.position.lerp(pos, damp);
     lookTarget.current.lerp(look, damp);

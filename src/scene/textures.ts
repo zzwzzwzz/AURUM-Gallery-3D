@@ -35,7 +35,7 @@ export function makeParquetTexture(): THREE.Texture {
   const { c, ctx } = t;
   ctx.fillStyle = tokens.color.floor;
   ctx.fillRect(0, 0, 512, 512);
-  const plankL = 128, plankW = 32, shades = ['#6B4A2E', '#7A5435', '#5E4026', '#724D30'];
+  const plankL = 128, plankW = 32, shades = ['#7E5C3A', '#8A6840', '#735230', '#856236'];
   let n = 0;
   for (let y = -plankL; y < 512 + plankL; y += plankW) {
     for (let x = -plankL; x < 512 + plankL; x += plankL) {
@@ -56,7 +56,7 @@ export function makeCofferTexture(): THREE.Texture {
   const t = canvas(512);
   if (!t) return flat(tokens.color.ceil);
   const { c, ctx } = t;
-  ctx.fillStyle = '#3C2A18'; // recess shadow
+  ctx.fillStyle = '#A08A63'; // recess (light warm, not heavy)
   ctx.fillRect(0, 0, 512, 512);
   const cell = 128, bevel = 16;
   for (let gy = 0; gy < 512; gy += cell) {
