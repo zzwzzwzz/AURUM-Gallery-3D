@@ -1,10 +1,12 @@
 /**
  * Fallback.tsx — accessible screen shown when WebGL is not available.
  *
- * The href below is a placeholder. Replace it with the deployed 2D AURUM gallery URL
- * (e.g. "https://aurum.example.com/" or a relative path like "../") at integration time.
+ * Links back to the main site (the gallery deploys at gallery.ziwenzhou.com as a
+ * subdomain of the personal site). Update HOME_URL if the domain changes.
  */
 import { tokens } from '../theme/tokens';
+
+const HOME_URL = 'https://ziwenzhou.com';
 
 export default function Fallback() {
   return (
@@ -38,16 +40,15 @@ export default function Fallback() {
         >
           The immersive gallery needs WebGL, which isn't available here.
         </p>
-        {/* TODO: replace href with the deployed 2D AURUM gallery URL at integration time */}
         <a
-          href="../"
+          href={HOME_URL}
           style={{
             fontFamily: tokens.font.mono,
             fontSize: 13,
             color: tokens.color.goldBright,
           }}
         >
-          Enter the gallery in 2D →
+          Visit ziwenzhou.com →
         </a>
       </div>
     </main>
