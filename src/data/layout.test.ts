@@ -1,33 +1,52 @@
 import { describe, it, expect } from 'vitest';
-import { mounts, railPoints, buildRail, sampleRail } from './layout';
+import { mounts, railPoints, lookAnchors, buildRail, sampleRail, sampleLook, STATIONS } from './layout';
 import { artworks } from './artworks';
 
-describe('gallery layout', () => {
+describe('gallery layout — straight warm-classical hall', () => {
   it('has one mount per artwork', () => {
     expect(mounts).toHaveLength(artworks.length);
     expect(new Set(mounts.map(m => m.artworkId))).toEqual(new Set(artworks.map(a => a.id)));
   });
-  it('rail has enough control points to turn a corner', () => {
-    expect(railPoints.length).toBeGreaterThanOrEqual(4);
+  it('paintings alternate left/right walls', () => {
+    for (let i = 0; i < mounts.length; i++) {
+      const sign = Math.sign(mounts[i].position[0]);
+      expect(Math.abs(mounts[i].position[0])).toBeCloseTo(3.2, 5);
+      expect(sign).toBe(i % 2 === 0 ? -1 : 1); // P1 left, P2 right, ...
+    }
   });
-  it('sampleRail returns distinct position and look-ahead within bounds', () => {
-    const curve = buildRail(railPoints);
-    const a = sampleRail(curve, 0);
-    const b = sampleRail(curve, 1);
-    expect(a.pos.distanceTo(b.pos)).toBeGreaterThan(1); // camera actually travels
-    const mid = sampleRail(curve, 0.5);
-    expect(mid.look.distanceTo(mid.pos)).toBeGreaterThan(0); // looks ahead, not at itself
+  it('paintings march monotonically down -Z', () => {
+    for (let i = 1; i < mounts.length; i++) {
+      expect(mounts[i].position[2]).toBeLessThan(mounts[i - 1].position[2]);
+    }
   });
-  it('sampleRail look never collapses onto pos at the end of the rail', () => {
+  it('rail is a straight line down the hall centerline', () => {
+    expect(railPoints.length).toBe(STATIONS);
+    for (const [x] of railPoints) expect(Math.abs(x)).toBeLessThan(0.001);
     const curve = buildRail(railPoints);
-    const end = sampleRail(curve, 1);
-    expect(end.look.distanceTo(end.pos)).toBeGreaterThan(0);
+    const t0 = curve.getTangentAt(0.05), t1 = curve.getTangentAt(0.95);
+    expect(Math.abs(t0.x - t1.x)).toBeLessThan(0.05); // no turn — straight
   });
-  it('the rail changes horizontal direction (a real turn exists)', () => {
+  it('has 9 stations: title wall + 8 paintings', () => {
+    expect(STATIONS).toBe(artworks.length + 1);
+    expect(lookAnchors).toHaveLength(STATIONS);
+  });
+  it('sampleLook(0) returns the title-wall anchor', () => {
+    expect(sampleLook(0).distanceTo(lookAnchors[0])).toBeLessThan(1e-6);
+  });
+  it('sampleLook(1) returns the last painting anchor', () => {
+    expect(sampleLook(1).distanceTo(lookAnchors[STATIONS - 1])).toBeLessThan(1e-6);
+  });
+  it('look-target is never equal to the camera rail position (no NaN lookAt)', () => {
     const curve = buildRail(railPoints);
-    const t0 = curve.getTangentAt(0.05);
-    const t1 = curve.getTangentAt(0.95);
-    // x/z heading differs => the path turned
-    expect(Math.abs(t0.x - t1.x) + Math.abs(t0.z - t1.z)).toBeGreaterThan(0.3);
+    for (let i = 0; i <= 20; i++) {
+      const t = i / 20;
+      const pos = sampleRail(curve, t).pos;
+      const look = sampleLook(t);
+      expect(look.distanceTo(pos)).toBeGreaterThan(0.5);
+    }
+  });
+  it('sampleRail still travels the hall', () => {
+    const curve = buildRail(railPoints);
+    expect(sampleRail(curve, 0).pos.distanceTo(sampleRail(curve, 1).pos)).toBeGreaterThan(1);
   });
 });

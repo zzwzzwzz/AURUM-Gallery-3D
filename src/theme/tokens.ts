@@ -2,9 +2,10 @@ export const tokens = {
   color: {
     bg: '#0B0B0C',
     raise: '#121113',
-    wall: '#18171a',
-    floor: '#101012',
-    ceil: '#0d0d0f',
+    wall: '#E6E1D6',      // warm-white paneled wall (kept dim by lighting)
+    wallTrim: '#CFC6B4',  // panel molding / trim
+    floor: '#6B4A2E',     // warm parquet wood
+    ceil: '#7A5836',      // warm coffer wood
     warmWhite: '#EDEAE3',
     muted: '#A39E92',
     gold: '#C9A24B',

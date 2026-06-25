@@ -3,37 +3,42 @@ import * as THREE from 'three';
 export interface MountPoint {
   artworkId: number;
   position: [number, number, number];
-  rotationY: number; // radians; face into the room
+  rotationY: number; // radians; face into the hall
   width: number;     // world units (height derived from image aspect at render time)
 }
 
-const EYE = 1.6;      // eye height
-const HANG = 1.7;     // painting center height
-const WALL_X = 3.2;   // corridor half-width
+const EYE = 1.6;       // eye height
+const HANG = 1.7;      // painting / title center height
+const WALL_X = 3.2;    // half-width; paintings at x = ∓WALL_X
+const SPACING = 4;     // z between paintings
+const FIRST_Z = 6;     // P1 z
+export const FAR_Z = -26; // far end-wall (AURUM title) z — shared with TitleWall
+const START_Z = 9;     // camera start z (offset 0)
 
-// Room A: a corridor down -Z, paintings alternating L/R walls (works 1..6).
-// Room B: turn right, far wall holds works 7..8.
-export const mounts: MountPoint[] = [
-  { artworkId: 1, position: [-WALL_X, HANG, 6],  rotationY: Math.PI / 2,  width: 2.4 }, // L
-  { artworkId: 2, position: [ WALL_X, HANG, 3],  rotationY: -Math.PI / 2, width: 2.8 }, // R
-  { artworkId: 3, position: [-WALL_X, HANG, 0],  rotationY: Math.PI / 2,  width: 2.4 }, // L
-  { artworkId: 4, position: [ WALL_X, HANG, -3], rotationY: -Math.PI / 2, width: 2.8 }, // R
-  { artworkId: 5, position: [-WALL_X, HANG, -6], rotationY: Math.PI / 2,  width: 2.4 }, // L
-  { artworkId: 6, position: [ WALL_X, HANG, -9], rotationY: -Math.PI / 2, width: 2.6 }, // R
-  // Room B (after the right turn): camera travels +X; these face -X back toward the visitor path.
-  { artworkId: 7, position: [ 13.8, HANG, -16], rotationY: -Math.PI / 2, width: 2.6 },
-  { artworkId: 8, position: [ 13.8, HANG, -20], rotationY: -Math.PI / 2, width: 2.8 },
-];
+// Pk z = FIRST_Z - (k-1)*SPACING → 6, 2, -2, -6, -10, -14, -18, -22
+const widths = [2.4, 2.8, 2.4, 2.8, 2.4, 2.6, 2.4, 2.8];
+export const mounts: MountPoint[] = widths.map((width, i) => {
+  const left = i % 2 === 0;                 // P1 left, P2 right, ...
+  return {
+    artworkId: i + 1,
+    position: [left ? -WALL_X : WALL_X, HANG, FIRST_Z - i * SPACING] as [number, number, number],
+    rotationY: left ? Math.PI / 2 : -Math.PI / 2, // face into the hall (toward x=0)
+    width,
+  };
+});
 
-// Camera rail: down the corridor, curve right at the doorway, into Room B, stop facing the far wall.
-export const railPoints: [number, number, number][] = [
-  [0, EYE, 10],
-  [0, EYE, 2],
-  [0, EYE, -8],
-  [0, EYE, -13],   // approach the doorway
-  [3.5, EYE, -16], // curve right through the doorway
-  [9, EYE, -18],   // into Room B, facing the far wall (works 7/8 on the right)
+// Camera rail: straight down the centerline. Control points at the station z's so
+// getPointAt(k/8) ≈ the painting-k viewing position (square-on to its wall).
+const railZ = [START_Z, ...mounts.map(m => m.position[2])]; // 9 z's: 9,6,2,-2,-6,-10,-14,-18,-22
+export const railPoints: [number, number, number][] = railZ.map(z => [0, EYE, z]);
+
+// Look anchors: title wall first, then each painting center. Length = mounts.length + 1.
+const titleAnchor = new THREE.Vector3(0, HANG, FAR_Z);
+export const lookAnchors: THREE.Vector3[] = [
+  titleAnchor,
+  ...mounts.map(m => new THREE.Vector3(m.position[0], HANG, m.position[2])),
 ];
+export const STATIONS = lookAnchors.length;
 
 export function buildRail(points: [number, number, number][]): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3(
@@ -44,7 +49,7 @@ export function buildRail(points: [number, number, number][]): THREE.CatmullRomC
   );
 }
 
-/** Position at t plus a short look-ahead target along the curve (clamped). */
+/** Position at t plus a short look-ahead target along the curve (clamped). Kept for position use. */
 export function sampleRail(curve: THREE.CatmullRomCurve3, t: number) {
   const clamped = Math.min(1, Math.max(0, t));
   const pos = curve.getPointAt(clamped);
@@ -53,4 +58,18 @@ export function sampleRail(curve: THREE.CatmullRomCurve3, t: number) {
     ? curve.getPointAt(ahead)
     : pos.clone().add(curve.getTangentAt(clamped)); // at t=1: look one unit along the tangent so it never collapses onto pos
   return { pos, look };
+}
+
+function smoothstep(x: number): number {
+  const c = Math.min(1, Math.max(0, x));
+  return c * c * (3 - 2 * c);
+}
+
+/** Eased look-target across the station anchors: title → P1 → … → P8. */
+export function sampleLook(t: number): THREE.Vector3 {
+  const clamped = Math.min(1, Math.max(0, t));
+  const u = clamped * (STATIONS - 1);
+  const i = Math.min(STATIONS - 2, Math.floor(u));
+  const frac = smoothstep(u - i);
+  return lookAnchors[i].clone().lerp(lookAnchors[i + 1], frac);
 }

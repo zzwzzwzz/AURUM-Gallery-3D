@@ -13,4 +13,13 @@ describe('AURUM tokens', () => {
     expect(tokens.font.serif).toMatch(/Cormorant/);
     expect(tokens.font.mono).toMatch(/Space Mono/);
   });
+  it('exposes a warm-classical interior palette', () => {
+    // bg stays the locked near-black for page/fallback behind the canvas
+    expect(tokens.color.bg).toBe('#0B0B0C');
+    // interior is now warm, not charcoal
+    expect(tokens.color.wall).toMatch(/^#/);
+    expect(tokens.color.wall.toLowerCase()).not.toBe('#18171a');
+    expect(tokens.color.floor.toLowerCase()).not.toBe('#101012');
+    expect(tokens.color.wallTrim).toMatch(/^#/);
+  });
 });

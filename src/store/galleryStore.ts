@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { artworks } from '../data/artworks';
-import { offsetToIndex } from '../hooks/activeArtwork';
+import { offsetToActiveIndex } from '../hooks/activeArtwork';
 
 interface GalleryState {
   offset: number;
@@ -11,5 +11,5 @@ interface GalleryState {
 export const useGalleryStore = create<GalleryState>((set) => ({
   offset: 0,
   activeIndex: 0,
-  setOffset: (offset) => set({ offset, activeIndex: offsetToIndex(offset, artworks.length) }),
+  setOffset: (offset) => set({ offset, activeIndex: offsetToActiveIndex(offset, artworks.length) }),
 }));

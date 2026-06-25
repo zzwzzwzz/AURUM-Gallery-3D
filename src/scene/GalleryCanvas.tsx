@@ -6,6 +6,7 @@ import { tokens } from '../theme/tokens';
 import { config } from '../config';
 import ProceduralRoom from './ProceduralRoom';
 import GltfRoom from './GltfRoom';
+import TitleWall from './TitleWall';
 import Painting from './Painting';
 import CameraRig from './CameraRig';
 import { mounts } from '../data/layout';
@@ -24,8 +25,8 @@ export default function GalleryCanvas() {
       style={{ position: 'fixed', inset: 0 }}
     >
       <color attach="background" args={[tokens.color.bg]} />
-      <hemisphereLight args={[0xffffff, 0x222222, 0.45]} />
-      <ambientLight intensity={0.5} />
+      <hemisphereLight args={[0xfff0d8, 0x201810, 0.3]} />
+      <ambientLight intensity={0.28} />
       <Suspense fallback={null}>
         {/* ScrollControls creates the scroll DOM overlay; CameraRig reads it via useScroll().
             Room and paintings are plain children (NOT wrapped in <Scroll>) so they remain
@@ -33,6 +34,7 @@ export default function GalleryCanvas() {
         <ScrollControls pages={4} damping={0.25}>
           <CameraRig />
           {config.useGltfRoom ? <GltfRoom url={config.gltfUrl} /> : <ProceduralRoom />}
+          <TitleWall />
           {mounts.map((m) => {
             const art = artworks.find((a) => a.id === m.artworkId)!;
             return <Painting key={m.artworkId} mount={m} artwork={art} />;
