@@ -37,6 +37,8 @@ A scroll-driven **3D** gallery for the (fictional) AURUM gallery. The immersive 
 **Every change must be user-friendly and look/work well on mobile — verify it before considering the change done.** Use responsive units (`clamp()`, `min()`, `vw`/`vh`, the `.u-hide-sm` ≤600px helper in `index.css`) so chrome never overflows or collides on a phone; keep tap targets and on-screen instructions legible; nothing fixed-px that breaks small screens.
 `prefers-reduced-motion` (camera snaps) · no-WebGL/load-error → link to the 2D AURUM gallery (`Fallback.tsx` href is a **TODO placeholder** — set the real URL before any deploy) · keyboard-scrollable · `aria-live` side panel · visible `:focus-visible`.
 
+**Overlay legibility scales with the room, not the other way round.** The scene runs dark + spotlit, so HUD/panel copy reads cleanly straight on the scene — no card scrim. A card/scrim background behind text is only justified when the environment behind it is *light/bright* (the copy would otherwise wash out). Rule: **dark room → drop the card background, keep a text-shadow** (see `SidePanel.tsx`); **light env → the card background is necessary.** Don't add a scrim by reflex; check what's behind the text first.
+
 ## Ring-fence
 Fictional gallery. Art = The Met Open Access (CC0), self-hosted. Room is procedural (no third-party model asset). No production data. **Nothing ships without senior review.**
 

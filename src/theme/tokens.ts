@@ -2,10 +2,10 @@ export const tokens = {
   color: {
     bg: '#0B0B0C',
     raise: '#121113',
-    wall: '#ECE7DC',      // warm-white paneled wall — pairs with the warm cream ceiling
-    wallTrim: '#D6CDBB',  // panel molding / trim (warm)
+    wall: '#4D504A',      // dark, matte greige-green museum wall (moody, spotlit-gallery vibe)
+    wallTrim: '#5A5D56',  // panel molding / trim — just a touch lighter than the wall, subtle
     floor: '#6E4F32',     // warm parquet wood
-    ceil: '#DAC9A4',      // warm cream ceiling (bright)
+    ceil: '#DAC9A4',      // warm cream ceiling base (darkened to a dim warm-neutral in-scene)
     warmWhite: '#EDEAE3',
     muted: '#A39E92',
     gold: '#C9A24B',

@@ -1,9 +1,9 @@
 import { HALL } from '../data/layout';
 
-// Recessed warm downlights set flush into the coffered ceiling — an architectural,
-// "expensive classical" look rather than visible hanging bulbs. Two symmetric rows
-// (x = ±1.8) so both side walls read equally lit. Each fixture = a small emissive
-// disc flush with the ceiling (glows gently via bloom) + a warm point light below it.
+// Recessed warm downlights set flush into the ceiling — concealed apertures, NOT bright
+// hanging bulbs, so they suit the dim spotlit-gallery mood. Two symmetric rows (x = ±1.8)
+// so both side walls read equally. Each fixture = a softly-glowing emissive disc flush with
+// the ceiling (low emissive — a warm aperture, not a white blob) + a dim warm point light.
 const ROWS = [-1.8, 1.8];
 const ZS = [4, -8, -20]; // 2 rows × 3 = 6 fixtures (kept modest for forward-render light budget)
 
@@ -19,9 +19,9 @@ export default function CeilingLights() {
             {/* recessed warm downlight disc, facing down */}
             <mesh position={[0, discY, 0]} rotation={[Math.PI / 2, 0, 0]}>
               <circleGeometry args={[0.14, 24]} />
-              <meshStandardMaterial color="#2a2118" emissive="#ffd9a0" emissiveIntensity={1.5} roughness={1} />
+              <meshStandardMaterial color="#1f1812" emissive="#ffd9a0" emissiveIntensity={0.5} roughness={1} />
             </mesh>
-            <pointLight position={[0, lightY, 0]} intensity={8.5} distance={18} decay={2} color="#ffe7c6" />
+            <pointLight position={[0, lightY, 0]} intensity={3.4} distance={13} decay={2} color="#ffe7c6" />
           </group>
         )),
       )}

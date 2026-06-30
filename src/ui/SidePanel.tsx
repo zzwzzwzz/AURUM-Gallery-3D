@@ -25,12 +25,11 @@ export default function SidePanel() {
         position: 'fixed', left: 'clamp(16px, 4vw, 56px)', bottom: 'clamp(24px, 8vh, 80px)',
         maxWidth: 'min(340px, calc(100vw - 32px))', pointerEvents: 'none',
         opacity, transition: 'opacity 400ms ease',
-        // Faint scrim so cream copy stays legible over the lighter walls (feedback #4 / WCAG).
+        // No card scrim: the room is dark enough that the cream copy reads cleanly straight on
+        // the scene. A slightly stronger text-shadow is the only safeguard for the rare lighter
+        // patch (lit floor / wall pool). (See "dark room → no card scrim" rule in CLAUDE.md.)
         padding: 'clamp(14px, 2.2vw, 22px)',
-        borderRadius: 4,
-        background: 'linear-gradient(180deg, rgba(11,11,12,0) 0%, rgba(11,11,12,0.42) 45%, rgba(11,11,12,0.62) 100%)',
-        backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
-        textShadow: '0 1px 10px rgba(0,0,0,0.55)',
+        textShadow: '0 1px 14px rgba(0,0,0,0.78), 0 0 2px rgba(0,0,0,0.6)',
       }}
     >
       {visible && (

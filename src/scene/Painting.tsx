@@ -134,14 +134,14 @@ export default function Painting({ mount, artwork }: PaintingProps) {
         </TextureErrorBoundary>
       </group>
 
-      {/* Warm per-painting spotlight aimed at the art centre — keeps each work the
-          brightest thing on the wall even with the generous warm room fill. */}
+      {/* Warm per-painting spotlight aimed at the art centre — in the dim room this is the
+          focal pool, throwing a tight warm halo on the frame + wall around each work. */}
       <spotLight
         position={[0, isHero ? 2.6 : 2.2, 1.6]}
         target={lightTarget}
         angle={isHero ? 0.6 : 0.5}
-        penumbra={0.7}
-        intensity={isHero ? 3.6 : 2.6}
+        penumbra={0.55}
+        intensity={isHero ? 4.6 : 3.6}
         distance={isHero ? 9 : 7}
         color={tokens.color.spot}
         castShadow={false}

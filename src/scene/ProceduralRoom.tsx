@@ -33,26 +33,29 @@ export default function ProceduralRoom() {
         />
       </mesh>
 
-      {/* Warm plaster ceiling with long recessed panels (replaces the waffle coffers) */}
+      {/* Plaster ceiling with long recessed panels — tinted dark so the top edge reads as
+          dim shadow (the bright cream base was clipping to white), matching the moody mood. */}
       <mesh position={[0, H / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W, D]} />
-        <meshStandardMaterial map={ceiling} roughness={0.9} />
+        <meshStandardMaterial map={ceiling} color="#34322C" roughness={0.9} />
       </mesh>
 
-      {/* Long paneled walls — identical material both sides (feedback #5). */}
+      {/* Long paneled walls — identical material both sides (feedback #5). The panel texture
+          is already drawn in the wall color, so the mesh color stays white to avoid squaring
+          the dark albedo to near-black; the dim lights then carve the moody falloff. */}
       <mesh position={[-W / 2, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[D, H]} />
-        <meshStandardMaterial map={panel} color={tokens.color.wall} roughness={0.95} />
+        <meshStandardMaterial map={panel} roughness={0.95} />
       </mesh>
       <mesh position={[W / 2, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
         <planeGeometry args={[D, H]} />
-        <meshStandardMaterial map={panel} color={tokens.color.wall} roughness={0.95} />
+        <meshStandardMaterial map={panel} roughness={0.95} />
       </mesh>
 
       {/* Entrance wall (behind camera start) and far wall (holds the hero painting). */}
       <mesh position={[0, 0, D / 2]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[W, H]} />
-        <meshStandardMaterial map={panel} color={tokens.color.wall} roughness={0.95} />
+        <meshStandardMaterial map={panel} roughness={0.95} />
       </mesh>
       <mesh position={[0, 0, -D / 2]}>
         <planeGeometry args={[W, H]} />

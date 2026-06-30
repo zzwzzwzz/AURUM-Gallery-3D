@@ -20,15 +20,15 @@ export default function GalleryCanvas() {
     <Canvas
       dpr={[1, isSmall ? 1.5 : 2]}
       camera={{ position: [0, 1.6, 10], fov: 55, near: 0.1, far: 100 }}
-      gl={{ antialias: true, toneMappingExposure: 1.22 }}
+      gl={{ antialias: true, toneMappingExposure: 1.0 }}
       style={{ position: 'fixed', inset: 0 }}
     >
       <color attach="background" args={[tokens.color.bg]} />
-      {/* Warm, well-lit gallery fill: a generous warm hemisphere + ambient so the room
-          reads inviting (oil-painting vibe), with the per-painting spotlights still the
-          brightest thing on each work. */}
-      <hemisphereLight args={[0xfff0d4, 0x4a3c2a, 0.62]} />
-      <ambientLight intensity={0.55} />
+      {/* Moody, dim gallery fill: a low, COOL hemisphere + faint ambient so the room falls
+          into shadow and the per-painting spotlights become the clear focal pools. Cool sky /
+          near-black warm ground keeps shadows neutral while the spots stay warm. */}
+      <hemisphereLight args={[0x9aa3ad, 0x141210, 0.3]} />
+      <ambientLight intensity={0.16} />
       <Suspense fallback={null}>
         {/* ScrollControls creates the scroll DOM overlay; CameraRig reads it via useScroll().
             Room, furniture and paintings are plain children (NOT wrapped in <Scroll>) so they
@@ -48,8 +48,8 @@ export default function GalleryCanvas() {
           over the fully-rendered scene. Bloom threshold raised so it reads as a gentle gold
           glow on highlights, not a wash over the paintings (feedback #7). */}
       <EffectComposer enableNormalPass={false}>
-        <Bloom mipmapBlur intensity={isSmall ? 0.26 : 0.34} luminanceThreshold={0.9} luminanceSmoothing={0.22} />
-        <Vignette eskil={false} offset={0.35} darkness={0.42} />
+        <Bloom mipmapBlur intensity={isSmall ? 0.3 : 0.4} luminanceThreshold={0.85} luminanceSmoothing={0.22} />
+        <Vignette eskil={false} offset={0.42} darkness={0.55} />
       </EffectComposer>
     </Canvas>
   );
