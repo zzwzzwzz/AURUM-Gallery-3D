@@ -24,7 +24,7 @@ export default function IntroGate() {
         opacity: Math.min(1, a * 1.2),
       }}
     >
-      <div className="u-mono" style={{ fontSize: 11, letterSpacing: '0.42em', color: tokens.color.gold, marginBottom: 18 }}>
+      <div className="u-mono" style={{ fontSize: 'clamp(11px, 1.5vw, 15px)', letterSpacing: 'clamp(0.24em, 1.4vw, 0.42em)', color: tokens.color.gold, marginBottom: 18 }}>
         AURUM&nbsp;GALLERY&nbsp;COLLECTION
       </div>
       <h1 style={{
@@ -36,12 +36,12 @@ export default function IntroGate() {
       </h1>
       <div style={{ width: 64, height: 1, background: tokens.color.gold, opacity: 0.7, margin: '22px 0' }} />
       <p style={{
-        fontFamily: tokens.font.serif, fontStyle: 'italic', margin: 0, maxWidth: 540,
-        fontSize: 'clamp(16px, 2.4vw, 23px)', lineHeight: 1.5, color: '#3a372f',
+        fontFamily: tokens.font.serif, margin: 0, maxWidth: 540,
+        fontSize: 'clamp(18px, 2.8vw, 26px)', lineHeight: 1.5, color: '#3a372f',
       }}>
         An experimental 3D Art Gallery built with Claude.
       </p>
-      <div className="u-mono" style={{ marginTop: 34, fontSize: 11, letterSpacing: '0.34em', color: '#8a8576' }}>
+      <div className="u-mono" style={{ marginTop: 'clamp(26px, 4vh, 34px)', fontSize: 'clamp(14px, 3.6vw, 20px)', letterSpacing: 'clamp(0.2em, 1vw, 0.34em)', color: '#8a8576' }}>
         SCROLL TO ENTER&nbsp; ↓
       </div>
     </div>

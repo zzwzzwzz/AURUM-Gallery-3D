@@ -19,12 +19,12 @@ export default function Overlay() {
 
   return (
     <>
-      <header style={{ position: 'fixed', top: 22, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', padding: '0 clamp(16px,4vw,56px)', pointerEvents: 'none' }}>
+      <header style={{ position: 'fixed', top: 'clamp(14px,2.4vh,22px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '0 clamp(16px,4vw,56px)', pointerEvents: 'none' }}>
         <h1 style={{ margin: 0 }}>
           <button
             onClick={goToStart}
             aria-label="AURUM 3D — back to the start"
-            style={{ all: 'unset', cursor: 'pointer', pointerEvents: 'auto', fontFamily: tokens.font.serif, fontWeight: 400, fontSize: 22, letterSpacing: '0.18em', color: tokens.color.warmWhite }}
+            style={{ all: 'unset', cursor: 'pointer', pointerEvents: 'auto', fontFamily: tokens.font.serif, fontWeight: 400, fontSize: 'clamp(15px,4.8vw,22px)', letterSpacing: 'clamp(0.1em,0.6vw,0.18em)', whiteSpace: 'nowrap', color: tokens.color.warmWhite }}
           >
             <span style={{ color: tokens.color.gold }}>—</span> AURUM 3D <span style={{ color: tokens.color.gold }}>—</span>
           </button>
@@ -33,11 +33,11 @@ export default function Overlay() {
           <a
             href="https://aurumgallery.ziwenzhou.com"
             className="u-mono"
-            style={{ fontSize: 11, color: tokens.color.gold, letterSpacing: '0.14em', textDecoration: 'none' }}
+            style={{ fontSize: 'clamp(11px,3vw,12px)', color: tokens.color.gold, letterSpacing: '0.14em', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             ← 2D gallery
           </a>
-          <span className="u-mono" style={{ fontSize: 11, color: tokens.color.muted, letterSpacing: '0.14em' }}>
+          <span className="u-mono u-hide-sm" style={{ fontSize: 11, color: tokens.color.muted, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>
             immersive · beta
           </span>
         </div>

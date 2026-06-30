@@ -23,7 +23,7 @@ export default function SidePanel() {
       aria-hidden={!visible}
       style={{
         position: 'fixed', left: 'clamp(16px, 4vw, 56px)', bottom: 'clamp(24px, 8vh, 80px)',
-        maxWidth: 320, pointerEvents: 'none',
+        maxWidth: 'min(320px, calc(100vw - 32px))', pointerEvents: 'none',
         opacity, transition: 'opacity 400ms ease',
       }}
     >

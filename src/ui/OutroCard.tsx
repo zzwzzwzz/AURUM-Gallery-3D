@@ -24,8 +24,8 @@ export default function OutroCard() {
     >
       <h2 style={{
         fontFamily: tokens.font.serif, fontWeight: 400, margin: 0,
-        fontSize: 'clamp(40px, 8vw, 84px)', letterSpacing: '0.2em', color: tokens.color.warmWhite,
-        textIndent: '0.2em',
+        fontSize: 'clamp(40px, 8vw, 84px)', letterSpacing: 'clamp(0.12em, 0.8vw, 0.2em)', color: tokens.color.warmWhite,
+        textIndent: 'clamp(0.12em, 0.8vw, 0.2em)',
       }}>
         AURUM
       </h2>

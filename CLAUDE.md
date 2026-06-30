@@ -33,7 +33,8 @@ A scroll-driven **3D** gallery for the (fictional) AURUM gallery. The immersive 
 - `sampleRail` look-ahead must not collapse onto `pos` at the rail end (would NaN `lookAt`) — it's guarded.
 - **Cloudflare deploy / `npm ci`:** vite@8 (rolldown) lists esbuild as a `peerOptional` (`^0.27||^0.28`) it never uses. `npm install` omits it from the lockfile but `npm ci` requires it, so Cloudflare's `npm clean-install` breaks (EBADPLATFORM, then EUSAGE). Fixed by pinning `"overrides": { "esbuild": "0.21.5" }` in `package.json` (the version vitest's vite@5 actually needs). Don't remove it. Regenerate/verify lockfiles with the Cloudflare toolchain (Node 22 / npm 10.9.2), not local Node 24 / npm 11 — they resolve this peer differently.
 
-## Accessibility guardrails (every change)
+## Usability & accessibility guardrails (every change)
+**Every change must be user-friendly and look/work well on mobile — verify it before considering the change done.** Use responsive units (`clamp()`, `min()`, `vw`/`vh`, the `.u-hide-sm` ≤600px helper in `index.css`) so chrome never overflows or collides on a phone; keep tap targets and on-screen instructions legible; nothing fixed-px that breaks small screens.
 `prefers-reduced-motion` (camera snaps) · no-WebGL/load-error → link to the 2D AURUM gallery (`Fallback.tsx` href is a **TODO placeholder** — set the real URL before any deploy) · keyboard-scrollable · `aria-live` side panel · visible `:focus-visible`.
 
 ## Ring-fence
