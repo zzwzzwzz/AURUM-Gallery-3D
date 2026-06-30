@@ -19,7 +19,7 @@ export default function Overlay() {
 
   return (
     <>
-      <header style={{ position: 'fixed', top: 'clamp(14px,2.4vh,22px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '0 clamp(16px,4vw,56px)', pointerEvents: 'none' }}>
+      <header style={{ position: 'fixed', top: 'clamp(14px,2.4vh,22px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '0 clamp(16px,4vw,56px)', pointerEvents: 'none', textShadow: '0 1px 10px rgba(0,0,0,0.55)' }}>
         <h1 style={{ margin: 0 }}>
           <button
             onClick={goToStart}
@@ -42,7 +42,7 @@ export default function Overlay() {
           </span>
         </div>
       </header>
-      <div className="u-mono" style={{ position: 'fixed', bottom: 18, right: 'clamp(16px,4vw,56px)', fontSize: 10, color: tokens.color.muted, pointerEvents: 'none', textAlign: 'right', lineHeight: 1.7 }}>
+      <div className="u-mono" style={{ position: 'fixed', bottom: 18, right: 'clamp(16px,4vw,56px)', fontSize: 10, color: tokens.color.muted, pointerEvents: 'none', textAlign: 'right', lineHeight: 1.7, textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>
         scroll to walk the gallery<br />
         click a painting to bring it forward<br />
         <span style={{ opacity: 0.7 }}>art: The Met — Open Access (CC0)</span>

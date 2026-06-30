@@ -24,9 +24,11 @@ export default function GalleryCanvas() {
       style={{ position: 'fixed', inset: 0 }}
     >
       <color attach="background" args={[tokens.color.bg]} />
-      {/* Bright, warm, even base fill (feedback #4). */}
-      <hemisphereLight args={[0xfff2dc, 0x4a4034, 0.6]} />
-      <ambientLight intensity={0.5} />
+      {/* v2 lighting rebalance (feedback #2): ambient + hemi dropped ~35% so the
+          per-painting spotlights are the brightest thing in the room. The walk now
+          shows the corridor constantly, so a flat bright fill flattened everything. */}
+      <hemisphereLight args={[0xdfe0e6, 0x3a352c, 0.38]} />
+      <ambientLight intensity={0.32} />
       <Suspense fallback={null}>
         {/* ScrollControls creates the scroll DOM overlay; CameraRig reads it via useScroll().
             Room, furniture and paintings are plain children (NOT wrapped in <Scroll>) so they
@@ -46,8 +48,8 @@ export default function GalleryCanvas() {
           over the fully-rendered scene. Bloom threshold raised so it reads as a gentle gold
           glow on highlights, not a wash over the paintings (feedback #7). */}
       <EffectComposer enableNormalPass={false}>
-        <Bloom mipmapBlur intensity={isSmall ? 0.3 : 0.4} luminanceThreshold={0.85} luminanceSmoothing={0.25} />
-        <Vignette eskil={false} offset={0.3} darkness={0.55} />
+        <Bloom mipmapBlur intensity={isSmall ? 0.26 : 0.34} luminanceThreshold={0.92} luminanceSmoothing={0.22} />
+        <Vignette eskil={false} offset={0.3} darkness={0.6} />
       </EffectComposer>
     </Canvas>
   );

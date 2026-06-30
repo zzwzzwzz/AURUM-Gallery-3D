@@ -21,13 +21,13 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { useTexture, useCursor, useScroll } from '@react-three/drei';
+import { useTexture, useCursor } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { MountPoint } from '../data/layout';
-import { focusOffsetForMount } from '../data/layout';
 import type { Artwork } from '../data/artworks';
 import { tokens } from '../theme/tokens';
+import { useGalleryStore } from '../store/galleryStore';
 import TextureErrorBoundary from './TextureErrorBoundary';
 
 interface PaintingProps {
@@ -39,14 +39,11 @@ function ArtPlane({ mount, artwork }: { mount: MountPoint; artwork: Artwork }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
 
-  const scroll = useScroll();
-  const focusThis = () => {
-    const off = focusOffsetForMount(artwork.id - 1); // mounts ordered by artworkId
-    scroll.el.scrollTo({
-      top: off * (scroll.el.scrollHeight - scroll.el.clientHeight),
-      behavior: 'smooth',
-    });
-  };
+  // Click pins this work head-on (a separate camera state in CameraRig); the next
+  // scroll releases it back to the walk. mounts are ordered by artworkId, so the
+  // mount index is artwork.id - 1.
+  const setFocusedMount = useGalleryStore((s) => s.setFocusedMount);
+  const focusThis = () => setFocusedMount(artwork.id - 1);
 
   // useTexture suspends until resolved; rejects (404) → ErrorBoundary catches.
   const texture = useTexture(artwork.src);
@@ -115,6 +112,9 @@ function FramePlaceholder({ mount }: { mount: MountPoint }) {
 
 export default function Painting({ mount, artwork }: PaintingProps) {
   const lightTarget = useMemo(() => new THREE.Object3D(), []);
+  // The hero (far-wall work) is the corridor's destination — give it a stronger,
+  // wider key light so it stays bright at the vanishing point (feedback #3).
+  const isHero = artwork.id === 9;
 
   return (
     <group position={mount.position} rotation={[0, mount.rotationY, 0]}>
@@ -122,17 +122,22 @@ export default function Painting({ mount, artwork }: PaintingProps) {
         <ArtPlane mount={mount} artwork={artwork} />
       </TextureErrorBoundary>
 
-      {/* Warm per-painting spotlight aimed at the art centre. */}
+      {/* Warm per-painting spotlight aimed at the art centre. Art is the brightest
+          thing in the room now that ambient/hemi were dropped (feedback #2). */}
       <spotLight
-        position={[0, 2.2, 1.6]}
+        position={[0, isHero ? 2.6 : 2.2, 1.6]}
         target={lightTarget}
-        angle={0.5}
+        angle={isHero ? 0.6 : 0.5}
         penumbra={0.7}
-        intensity={2.2}
-        distance={7}
+        intensity={isHero ? 3.6 : 2.6}
+        distance={isHero ? 9 : 7}
         color={tokens.color.spot}
         castShadow={false}
       />
+      {/* Soft fill from the front keeps the hero from going flat under one key. */}
+      {isHero && (
+        <pointLight position={[0, 0, 2.4]} intensity={1.2} distance={6} decay={2} color="#fff0d6" />
+      )}
       <primitive object={lightTarget} position={[0, 0, 0]} />
     </group>
   );

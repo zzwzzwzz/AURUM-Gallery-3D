@@ -2,8 +2,8 @@ export const tokens = {
   color: {
     bg: '#0B0B0C',
     raise: '#121113',
-    wall: '#ECE7DC',      // warm-white paneled wall (bright, airy)
-    wallTrim: '#D6CDBB',  // panel molding / trim
+    wall: '#8E8B85',      // neutral grey-taupe wall (v2): warm spots + gold read warm by contrast, depth returns
+    wallTrim: '#A39E92',  // panel molding / trim
     floor: '#7E5C3A',     // warm parquet wood
     ceil: '#CBB991',      // light warm coffer wood (bright, not depressing)
     warmWhite: '#EDEAE3',

@@ -10,16 +10,20 @@ export interface MountPoint {
 // ---------------------------------------------------------------------------
 // Hall geometry: a straight hall down -Z. 8 side paintings alternate L/R; a 9th
 // HERO painting hangs head-on on the far wall.
+//
+// v2 hanging line: all painting CENTERS share one eye-level Y (HANG) so the works
+// read as a single hung line as you walk (feedback #3). The hero is wider so it
+// reads as the destination at the end of the corridor.
 // ---------------------------------------------------------------------------
-const EYE = 1.6;        // camera eye height
-const HANG = 1.7;       // side-painting center height
+const EYE = 1.6;        // camera eye height (rail)
+const HANG = 1.5;       // single hanging center-line for EVERY painting (~150cm)
 const WALL_X = 3.2;     // side paintings at x = ∓WALL_X
-const START_Z = 9;      // camera z at offset 0 (gate)
-const END_Z = -21;      // camera z while viewing the hero (≈5 units from the hero wall)
+const START_Z = 9;      // camera z at offset 0 (gate / entrance)
+const END_Z = -20;      // camera z at offset 1 — stops ~6 units short of the far wall
 const FAR_Z = -26;      // far wall z
-const HERO_Z = FAR_Z + 0.4; // hero hangs just IN FRONT of the far wall (no z-fight with it)
-const HERO_Y = 1.75;
-const HERO_W = 1.5;
+const HERO_Z = FAR_Z + 0.4; // hero hangs just IN FRONT of the far wall (no z-fight)
+const HERO_Y = HANG;        // hero shares the hanging line
+const HERO_W = 3.0;         // widest work — a real destination at the vanishing point (feedback #3)
 
 export const HALL = { W: 8.8, H: 4, Z0: 10, Z1: FAR_Z } as const;
 
@@ -40,100 +44,121 @@ export const mounts: MountPoint[] = [
 ];
 
 export const HERO_INDEX = N_SIDE; // 8
+export const HERO_WIDTH = HERO_W;
 
-// Look targets per station (8 side painting centers + the hero center).
-const stationLook: THREE.Vector3[] = [
-  ...sideZ.map((z, i) => new THREE.Vector3(i % 2 === 0 ? -WALL_X : WALL_X, HANG, z)),
-  new THREE.Vector3(0, HERO_Y, HERO_Z),
-];
-const forwardTarget = stationLook[HERO_INDEX]; // looking forward = looking at the hero wall
+// World-space painting centres (8 sides + hero), reused for the yaw-glance blend.
+const sidePos: THREE.Vector3[] = sideZ.map((z, i) =>
+  new THREE.Vector3(i % 2 === 0 ? -WALL_X : WALL_X, HANG, z));
+// Default forward look: a point on the far hero wall, straight down the corridor.
+const forwardTarget = new THREE.Vector3(0, HANG, HERO_Z);
+
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+const smoothstep = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); };
 
 // ---------------------------------------------------------------------------
-// Keyframe choreography. The camera DWELLS (holds head-on) at each painting for
-// a real beat, faces FORWARD (toward the hero) while travelling between, gives
-// the hero a longer admire-hold, then a FIN tail where it stays on the hero and
-// the outro fades in. Offsets are normalised to [0,1] from arbitrary weights.
+// v2 camera model — WALK, don't slideshow (feedback #1).
+//
+//  • Rail: a straight centre-aisle line at eye height; offset 0→1 maps to z
+//    START_Z→END_Z continuously (smoothstep eases only the very start/end, so
+//    velocity never hits zero mid-corridor — that zero was the "slideshow" feel).
+//  • Default look = forward, down the corridor at the hero (always faces the 9th).
+//  • Yaw glances: as the camera draws level with a side painting, the look target
+//    blends from forward toward that painting's world position, peaking when level,
+//    easing back to forward. Opposite-wall contributions cancel at mid-points, so
+//    between two works the gaze returns to centre. Pure yaw — horizon stays level.
 // ---------------------------------------------------------------------------
-const OVERVIEW = 6.0;    // hold the full-hall overview after the gate fades, before P1
-const LEAD = 1.4;        // entering from the overview to painting 1
-const DWELL = 2.4;       // hold head-on at each side painting
-const TRAVEL = 2.4;      // walk forward (facing front) between paintings — a longer gap
-const HERO_DWELL = 3.2;  // longer hold to admire the hero
-const FIN = 1.8;         // tail: hold on the hero while the outro fades in
+const GLANCE_W = 2.6;   // along-rail falloff half-width (≈ painting spacing; nearest 1–2 contribute)
 
-interface KF { o: number; z: number; f: number; st: number }
-/** Offset at which the outro 'FIN' begins — strictly AFTER the hero admire-hold. Set by the builder. */
-export let OUTRO_FADE_START = 0.95;
-const kf: KF[] = [];
-const dwellCenter: number[] = []; // offset that frames each station head-on
+function railZ(t: number): number {
+  return START_Z + (END_Z - START_Z) * smoothstep(t);
+}
 
-(() => {
-  let o = 0;
-  kf.push({ o, z: START_Z, f: 0, st: 0 });        // gate / overview (forward, no focus)
-  o += OVERVIEW;
-  kf.push({ o, z: START_Z, f: 0, st: 0 });        // hold the overview (the gate has faded by now)
-  o += LEAD;
-  const a0 = o; kf.push({ o, z: sideZ[0], f: 1, st: 0 });   // arrive P1
-  o += DWELL; kf.push({ o, z: sideZ[0], f: 1, st: 0 });     // hold P1
-  dwellCenter[0] = (a0 + o) / 2;
-
-  for (let k = 1; k < N_SIDE; k++) {
-    o += TRAVEL / 2; kf.push({ o, z: (sideZ[k - 1] + sideZ[k]) / 2, f: 0, st: k }); // travel mid (forward)
-    o += TRAVEL / 2; const ak = o; kf.push({ o, z: sideZ[k], f: 1, st: k }); // arrive Pk (smooth turn-in)
-    o += DWELL; kf.push({ o, z: sideZ[k], f: 1, st: k });     // hold Pk
-    dwellCenter[k] = (ak + o) / 2;
-  }
-
-  // travel to the hero, then a longer admire-hold
-  o += TRAVEL / 2; kf.push({ o, z: (sideZ[N_SIDE - 1] + END_Z) / 2, f: 0, st: HERO_INDEX });
-  o += TRAVEL / 2; const ah = o; kf.push({ o, z: END_Z, f: 1, st: HERO_INDEX }); // arrive hero (smooth)
-  o += HERO_DWELL; kf.push({ o, z: END_Z, f: 1, st: HERO_INDEX }); // admire
-  dwellCenter[HERO_INDEX] = (ah + o) / 2;
-  const heroDwellEnd = o;
-
-  o += FIN; kf.push({ o, z: END_Z, f: 1, st: HERO_INDEX }); // FIN tail (outro fades in)
-  const total = o;
-
-  for (const k of kf) k.o /= total;
-  for (let i = 0; i < dwellCenter.length; i++) dwellCenter[i] /= total;
-  OUTRO_FADE_START = heroDwellEnd / total;
-})();
-
-/** Reduced-motion stops: gate, each station head-on, and the very end. */
-export const stops = [0, ...dwellCenter, 1];
+/** 1 when the camera is level with a painting (along-rail), easing to 0 by GLANCE_W. */
+function glanceWeight(camZ: number, pz: number): number {
+  return 1 - smoothstep(Math.abs(camZ - pz) / GLANCE_W);
+}
 
 export interface CameraSample {
   pos: THREE.Vector3;
   look: THREE.Vector3;
-  focus: number;  // 0..1 head-on to `index`
-  index: number;  // mount index framed (0..8)
+  focus: number;  // 0..1 how strongly a work is currently framed (drives the label)
+  index: number;  // mount index of the most-framed work (0..8)
 }
 
-// Scratch vectors reused each frame (sampleCamera runs in useFrame). Consume the
+// Scratch vectors reused each frame (sampleRail runs in useFrame). Consume the
 // returned pos/look immediately; never retain across frames.
 const _pos = new THREE.Vector3();
 const _look = new THREE.Vector3();
-const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+const _tmp = new THREE.Vector3();
 
-export function sampleCamera(t: number): CameraSample {
+/** Continuous walk sample at scroll offset t∈[0,1]. */
+export function sampleRail(t: number): CameraSample {
   const c = clamp01(t);
-  // locate the keyframe interval
-  let i = 0;
-  while (i < kf.length - 2 && c > kf[i + 1].o) i++;
-  const a = kf[i], b = kf[i + 1];
-  const span = b.o - a.o;
-  const frac = span > 1e-9 ? (c - a.o) / span : 0;
-
-  const z = a.z + (b.z - a.z) * frac;
-  const f = a.f + (b.f - a.f) * frac;
-  const st = a.st;
-
+  const z = railZ(c);
   _pos.set(0, EYE, z);
-  _look.copy(forwardTarget).lerp(stationLook[st], f); // forward by default; yaw to the station as f→1
-  return { pos: _pos, look: _look, focus: f, index: st };
+
+  _look.copy(forwardTarget);
+  let bestW = 0, bestIdx = HERO_INDEX;
+  for (let i = 0; i < N_SIDE; i++) {
+    const w = glanceWeight(z, sideZ[i]);
+    if (w > 1e-4) _look.addScaledVector(_tmp.subVectors(sidePos[i], forwardTarget), w);
+    if (w > bestW) { bestW = w; bestIdx = i; }
+  }
+
+  // Near the end of the walk the hero becomes the framed work (its label appears),
+  // then the outro fades in. The look is already forward = the hero, so no swing.
+  const heroW = smoothstep((c - 0.78) / (0.95 - 0.78));
+  if (heroW > bestW) { bestW = heroW; bestIdx = HERO_INDEX; }
+
+  return { pos: _pos, look: _look, focus: bestW, index: bestIdx };
 }
 
-/** Offset that frames a given mount head-on (click-to-focus). */
-export function focusOffsetForMount(mountIndex: number): number {
-  return dwellCenter[Math.min(Math.max(mountIndex, 0), HERO_INDEX)];
+// Back-compat alias (CameraRig + tests). v2 = walk, not keyframe dwell.
+export const sampleCamera = sampleRail;
+
+// ---------------------------------------------------------------------------
+// Click-to-focus (feedback #1, item 9) — a SEPARATE camera state. Clicking a
+// painting tweens the camera off the rail to a head-on, frame-filling pose; the
+// next scroll returns to the walk. focusPose() gives the target pose.
+// ---------------------------------------------------------------------------
+const FOV = 55;
+const _halfV = (FOV * Math.PI / 180) / 2;
+
+export interface FocusPose { pos: THREE.Vector3; look: THREE.Vector3; }
+const _fpos = new THREE.Vector3();
+const _flook = new THREE.Vector3();
+
+/** Head-on, frame-filling camera pose for mount index i (0..8). */
+export function focusPose(i: number): FocusPose {
+  const m = mounts[Math.min(Math.max(i, 0), HERO_INDEX)];
+  const nx = Math.sin(m.rotationY), nz = Math.cos(m.rotationY); // outward face normal
+  // distance so the work fills the frame with a little breathing room
+  const dist = (m.width * 0.62) / Math.tan(_halfV);
+  _flook.set(m.position[0], m.position[1], m.position[2]);
+  _fpos.set(m.position[0] + nx * dist, m.position[1], m.position[2] + nz * dist);
+  return { pos: _fpos, look: _flook };
 }
+
+// ---------------------------------------------------------------------------
+// Reduced-motion stations + outro timing.
+// ---------------------------------------------------------------------------
+/** Invert railZ: the offset t at which the camera is level with z (bisection on smoothstep). */
+function offsetAtZ(targetZ: number): number {
+  const frac = clamp01((targetZ - START_Z) / (END_Z - START_Z));
+  let lo = 0, hi = 1;
+  for (let k = 0; k < 30; k++) { const mid = (lo + hi) / 2; if (smoothstep(mid) < frac) lo = mid; else hi = mid; }
+  return (lo + hi) / 2;
+}
+
+const sideStation = sideZ.map(offsetAtZ);
+const HERO_STATION = 0.90;            // hero is admired near the very end of the walk
+export const OUTRO_FADE_START = 0.94; // outro fades in strictly AFTER the hero hold
+
+/** Offset that best frames a given mount (reduced-motion stop / fallback scroll target). */
+export function focusOffsetForMount(mountIndex: number): number {
+  const i = Math.min(Math.max(mountIndex, 0), HERO_INDEX);
+  return i === HERO_INDEX ? HERO_STATION : sideStation[i];
+}
+
+/** Reduced-motion stops: gate, each of the 9 works, and the end. */
+export const stops = [0, ...sideStation, HERO_STATION, 1];

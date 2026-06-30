@@ -16,12 +16,13 @@ export default function CeilingLights() {
       {ROWS.flatMap((x) =>
         ZS.map((z) => (
           <group key={`${x}_${z}`} position={[x, 0, z]}>
-            {/* recessed disc, facing down */}
+            {/* recessed disc, facing down — emissive tamed (feedback #2) so the
+                ceiling edge no longer clips to white under bloom. */}
             <mesh position={[0, discY, 0]} rotation={[Math.PI / 2, 0, 0]}>
               <circleGeometry args={[0.14, 24]} />
-              <meshStandardMaterial color="#2a2118" emissive="#ffd9a0" emissiveIntensity={1.7} roughness={1} />
+              <meshStandardMaterial color="#2a2118" emissive="#ffd9a0" emissiveIntensity={1.05} roughness={1} />
             </mesh>
-            <pointLight position={[0, lightY, 0]} intensity={8} distance={16} decay={2} color="#ffe7c6" />
+            <pointLight position={[0, lightY, 0]} intensity={5.5} distance={16} decay={2} color="#ffe7c6" />
           </group>
         )),
       )}

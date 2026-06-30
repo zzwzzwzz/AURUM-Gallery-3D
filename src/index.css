@@ -3,6 +3,11 @@
 html, body, #root { margin: 0; height: 100%; }
 body { background: #0B0B0C; color: #EDEAE3; overflow: hidden; font-family: 'Cormorant Garamond', Georgia, serif; }
 canvas { display: block; }
+/* drei ScrollControls mounts an overflow-y:auto div for the scroll track. Its native
+   scrollbar showed as a stray vertical strip over the art (feedback #4) — hide it
+   everywhere; the page itself never scrolls (body is overflow:hidden). */
+* { scrollbar-width: none; -ms-overflow-style: none; }
+*::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .u-mono { font-family: 'Space Mono', ui-monospace, monospace; }
 :focus-visible { outline: 2px solid #E0B85A; outline-offset: 2px; }
 @keyframes aurumFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

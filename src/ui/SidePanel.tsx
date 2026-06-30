@@ -23,8 +23,14 @@ export default function SidePanel() {
       aria-hidden={!visible}
       style={{
         position: 'fixed', left: 'clamp(16px, 4vw, 56px)', bottom: 'clamp(24px, 8vh, 80px)',
-        maxWidth: 'min(320px, calc(100vw - 32px))', pointerEvents: 'none',
+        maxWidth: 'min(340px, calc(100vw - 32px))', pointerEvents: 'none',
         opacity, transition: 'opacity 400ms ease',
+        // Faint scrim so cream copy stays legible over the lighter walls (feedback #4 / WCAG).
+        padding: 'clamp(14px, 2.2vw, 22px)',
+        borderRadius: 4,
+        background: 'linear-gradient(180deg, rgba(11,11,12,0) 0%, rgba(11,11,12,0.42) 45%, rgba(11,11,12,0.62) 100%)',
+        backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
+        textShadow: '0 1px 10px rgba(0,0,0,0.55)',
       }}
     >
       {visible && (
