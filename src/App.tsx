@@ -6,8 +6,11 @@ import OutroCard from './ui/OutroCard';
 import Loader from './ui/Loader';
 import Fallback from './ui/Fallback';
 import { isWebGLAvailable } from './lib/webgl';
+import { useSystemTheme } from './hooks/useSystemTheme';
 
 export default function App() {
+  // Follow the OS light/dark setting until the visitor picks a mode via the toggle.
+  useSystemTheme();
   if (!isWebGLAvailable()) return <Fallback />;
   return (
     <>

@@ -37,6 +37,11 @@ agent). Key gotchas that make it work:
   ground truth — don't trust a `drawImage` luma check.
 - The offset-0 frame shows the frosted intro gate (a DOM overlay), not the room —
   the dark scene only appears after scrolling in. Expected, not a bug.
+- Testing the light/dark mode: emulate the OS scheme with `browser.newContext({
+  colorScheme })`. To test a LIVE change, `page.emulateMedia({ colorScheme })`
+  **intermittently fails to dispatch** the matchMedia `change` event — retry the
+  light↔dark flip (with an independent listener recording `e.matches`) until it
+  actually fires. Real OS appearance switches always fire it; this is harness-only.
 
 ## Deferred: v2 rebuild (per feedback doc)
 
