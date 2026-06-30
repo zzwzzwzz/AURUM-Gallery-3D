@@ -24,7 +24,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTexture, useCursor } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import type { MountPoint } from '../data/layout';
+import { LEAN, type MountPoint } from '../data/layout';
 import type { Artwork } from '../data/artworks';
 import { tokens } from '../theme/tokens';
 import { useGalleryStore } from '../store/galleryStore';
@@ -39,11 +39,13 @@ function ArtPlane({ mount, artwork }: { mount: MountPoint; artwork: Artwork }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
 
-  // Click pins this work head-on (a separate camera state in CameraRig); the next
-  // scroll releases it back to the walk. mounts are ordered by artworkId, so the
-  // mount index is artwork.id - 1.
+  // Click pins this work head-on (a separate camera state in CameraRig); clicking it
+  // AGAIN returns to the walk spot you were at before (feedback #4); the next scroll
+  // also releases it. mounts are ordered by artworkId, so mount index = artwork.id - 1.
+  const mountIndex = artwork.id - 1;
+  const focusedMount = useGalleryStore((s) => s.focusedMount);
   const setFocusedMount = useGalleryStore((s) => s.setFocusedMount);
-  const focusThis = () => setFocusedMount(artwork.id - 1);
+  const focusThis = () => setFocusedMount(focusedMount === mountIndex ? null : mountIndex);
 
   // useTexture suspends until resolved; rejects (404) → ErrorBoundary catches.
   const texture = useTexture(artwork.src);
@@ -67,8 +69,13 @@ function ArtPlane({ mount, artwork }: { mount: MountPoint; artwork: Artwork }) {
       ? img.width / img.height
       : 1;
 
-  const w = mount.width;
-  const h = w / aspect;
+  // Size by width, but CAP the height so a tall/portrait work is never cropped by the
+  // floor or ceiling — it hangs whole on the wall (feedback #3). Aspect is preserved
+  // (width shrinks with height), so the image is shown complete, never cover-cropped.
+  const maxH = artwork.id === 9 ? 2.6 : 2.1;
+  let w = mount.width;
+  let h = w / aspect;
+  if (h > maxH) { w *= maxH / h; h = maxH; }
 
   return (
     <>
@@ -118,12 +125,17 @@ export default function Painting({ mount, artwork }: PaintingProps) {
 
   return (
     <group position={mount.position} rotation={[0, mount.rotationY, 0]}>
-      <TextureErrorBoundary fallback={<FramePlaceholder mount={mount} />}>
-        <ArtPlane mount={mount} artwork={artwork} />
-      </TextureErrorBoundary>
+      {/* Inner group tilts the art+frame forward about its local X (top toward viewer),
+          while the mount stays square to the wall. Positive LEAN tips local +Y toward
+          local +Z (the outward normal), i.e. a forward museum lean for every work. */}
+      <group rotation={[LEAN, 0, 0]}>
+        <TextureErrorBoundary fallback={<FramePlaceholder mount={mount} />}>
+          <ArtPlane mount={mount} artwork={artwork} />
+        </TextureErrorBoundary>
+      </group>
 
-      {/* Warm per-painting spotlight aimed at the art centre. Art is the brightest
-          thing in the room now that ambient/hemi were dropped (feedback #2). */}
+      {/* Warm per-painting spotlight aimed at the art centre — keeps each work the
+          brightest thing on the wall even with the generous warm room fill. */}
       <spotLight
         position={[0, isHero ? 2.6 : 2.2, 1.6]}
         target={lightTarget}

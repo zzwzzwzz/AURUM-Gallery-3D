@@ -2,10 +2,10 @@ export const tokens = {
   color: {
     bg: '#0B0B0C',
     raise: '#121113',
-    wall: '#8E8B85',      // neutral grey-taupe wall (v2): warm spots + gold read warm by contrast, depth returns
-    wallTrim: '#A39E92',  // panel molding / trim
-    floor: '#7E5C3A',     // warm parquet wood
-    ceil: '#CBB991',      // light warm coffer wood (bright, not depressing)
+    wall: '#ECE7DC',      // warm-white paneled wall — pairs with the warm cream ceiling
+    wallTrim: '#D6CDBB',  // panel molding / trim (warm)
+    floor: '#6E4F32',     // warm parquet wood
+    ceil: '#DAC9A4',      // warm cream ceiling (bright)
     warmWhite: '#EDEAE3',
     muted: '#A39E92',
     gold: '#C9A24B',

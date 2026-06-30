@@ -1,5 +1,5 @@
-// v2 furnishing (feedback #6): a warm runner rug down the centre to guide the walk,
-// plus two low dark-stone benches that add life and scale.
+// v2 furnishing: a runner rug down the centre to guide the walk, plus four low
+// dark-stone benches (mirrored left/right) that add life and scale.
 //
 // The reviewer asked for a "centre bench" but with the v2 continuous walk the camera
 // glides straight down x=0 at eye height — a bench ON the rail would be glided
@@ -7,23 +7,25 @@
 // the aisle (x=±1.45) and low (0.45m), flush to the floor: they read in peripheral
 // view and never block the forward look down the corridor.
 
+// Four benches, mirrored left/right at two depths (feedback #1: symmetrical, 4 > 2).
+const BX = 1.45;
 const BENCHES = [
-  { x: -1.45, z: 0 },
-  { x: 1.45, z: -12 },
+  { x: -BX, z: -2 }, { x: BX, z: -2 },
+  { x: -BX, z: -13 }, { x: BX, z: -13 },
 ];
 
 function Bench({ x, z }: { x: number; z: number }) {
   return (
     <group position={[x, 0, z]}>
-      {/* seat slab */}
+      {/* seat slab — dark walnut, warm */}
       <mesh position={[0, 0.42, 0]} castShadow>
         <boxGeometry args={[0.55, 0.12, 1.8]} />
-        <meshStandardMaterial color="#2b2b30" roughness={0.6} metalness={0.1} />
+        <meshStandardMaterial color="#3a2c1d" roughness={0.55} metalness={0.1} />
       </mesh>
       {/* plinth */}
       <mesh position={[0, 0.18, 0]}>
         <boxGeometry args={[0.42, 0.36, 1.6]} />
-        <meshStandardMaterial color="#202024" roughness={0.8} />
+        <meshStandardMaterial color="#2c2114" roughness={0.8} />
       </mesh>
     </group>
   );

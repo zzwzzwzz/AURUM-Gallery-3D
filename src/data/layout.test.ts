@@ -22,8 +22,8 @@ describe('gallery layout — v2 walk choreography', () => {
     expect(mounts[HERO_INDEX].rotationY).toBeCloseTo(0, 5);
   });
 
-  it('all painting centres share one hanging line (single eye-level Y)', () => {
-    const ys = mounts.map((m) => m.position[1]);
+  it('the 8 side works share one hanging line (single eye-level Y)', () => {
+    const ys = mounts.slice(0, HERO_INDEX).map((m) => m.position[1]);
     for (const y of ys) expect(y).toBeCloseTo(ys[0], 5);
   });
 
@@ -41,14 +41,22 @@ describe('gallery layout — v2 walk choreography', () => {
     expect(s.look.z).toBeLessThan(-20);           // toward the far hero wall
   });
 
-  it('WALK: the camera glides forward continuously and never parks mid-corridor', () => {
+  it('WALK: the camera advances forward (dwells hold z; it never moves backward)', () => {
     let prev = sampleRail(0).pos.z;
-    for (let i = 1; i <= 40; i++) {
-      const z = sampleRail(i / 40).pos.z;
-      expect(z).toBeLessThan(prev); // strictly decreasing — velocity never hits zero
+    for (let i = 1; i <= 60; i++) {
+      const z = sampleRail(i / 60).pos.z;
+      expect(z).toBeLessThanOrEqual(prev + 1e-6); // monotonic forward (flat during a dwell)
       prev = z;
     }
-    expect(sampleRail(1).pos.z).toBeCloseTo(-20, 1); // stops short of the far wall (-26)
+    expect(sampleRail(0).pos.z).toBeGreaterThan(sampleRail(1).pos.z); // overall progress
+    expect(sampleRail(1).pos.z).toBeCloseTo(-20, 1);                  // stops short of the far wall (-26)
+  });
+
+  it('DWELL: the camera lingers (z holds) while a side work is framed', () => {
+    // Around a dwell centre the camera z barely changes — the "stay a few seconds" beat.
+    const c = focusOffsetForMount(2);
+    const spread = Math.abs(sampleRail(c + 0.02).pos.z - sampleRail(c - 0.02).pos.z);
+    expect(spread).toBeLessThan(0.4);
   });
 
   it('the camera height stays level (pure yaw, no roll/pitch drift in pos.y)', () => {

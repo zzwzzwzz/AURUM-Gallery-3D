@@ -35,7 +35,7 @@ export function makeParquetTexture(): THREE.Texture {
   const { c, ctx } = t;
   ctx.fillStyle = tokens.color.floor;
   ctx.fillRect(0, 0, 512, 512);
-  const plankL = 128, plankW = 32, shades = ['#7E5C3A', '#8A6840', '#735230', '#856236'];
+  const plankL = 128, plankW = 32, shades = ['#6E4F32', '#7A5A3A', '#634629', '#74532F'];
   let n = 0;
   for (let y = -plankL; y < 512 + plankL; y += plankW) {
     for (let x = -plankL; x < 512 + plankL; x += plankL) {
@@ -51,29 +51,31 @@ export function makeParquetTexture(): THREE.Texture {
   return finish(c, [6, 6]);
 }
 
-/** Coffered ceiling — grid of recessed warm-wood panels with shaded bevels. */
-export function makeCofferTexture(): THREE.Texture {
+/** Smooth warm plaster ceiling with one large soft-bevel panel per tile — reads as
+ *  long elegant recessed panels down the hall (replaces the old "waffle" coffer grid). */
+export function makeCeilingTexture(): THREE.Texture {
   const t = canvas(512);
   if (!t) return flat(tokens.color.ceil);
   const { c, ctx } = t;
-  ctx.fillStyle = '#A08A63'; // recess (light warm, not heavy)
+  // Warm plaster base.
+  ctx.fillStyle = tokens.color.ceil;
   ctx.fillRect(0, 0, 512, 512);
-  const cell = 128, bevel = 16;
-  for (let gy = 0; gy < 512; gy += cell) {
-    for (let gx = 0; gx < 512; gx += cell) {
-      // panel face
-      ctx.fillStyle = tokens.color.ceil;
-      ctx.fillRect(gx + bevel, gy + bevel, cell - 2 * bevel, cell - 2 * bevel);
-      // highlight top/left, shadow bottom/right
-      ctx.fillStyle = 'rgba(255,230,180,0.18)';
-      ctx.fillRect(gx + bevel, gy + bevel, cell - 2 * bevel, 4);
-      ctx.fillRect(gx + bevel, gy + bevel, 4, cell - 2 * bevel);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.fillRect(gx + bevel, gy + cell - bevel - 4, cell - 2 * bevel, 4);
-      ctx.fillRect(gx + cell - bevel - 4, gy + bevel, 4, cell - 2 * bevel);
-    }
-  }
-  return finish(c, [5, 4]);
+  // One generous recessed panel, gently inset — soft, architectural, not a grid.
+  const m = 40;
+  ctx.fillStyle = '#E4D5B2'; // slightly brighter panel face
+  ctx.fillRect(m, m, 512 - 2 * m, 512 - 2 * m);
+  // Soft warm bevel: light top/left, shadow bottom/right.
+  ctx.fillStyle = 'rgba(255,240,210,0.5)';
+  ctx.fillRect(m, m, 512 - 2 * m, 6);
+  ctx.fillRect(m, m, 6, 512 - 2 * m);
+  ctx.fillStyle = 'rgba(120,95,60,0.22)';
+  ctx.fillRect(m, 512 - m - 6, 512 - 2 * m, 6);
+  ctx.fillRect(512 - m - 6, m, 6, 512 - 2 * m);
+  // One thin warm molding line just inside the recess.
+  ctx.strokeStyle = tokens.color.wallTrim;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(m + 16, m + 16, 512 - 2 * m - 32, 512 - 2 * m - 32);
+  return finish(c, [1, 4]); // 1 across the width, 4 long panels down the hall
 }
 
 /** Paneled warm-white wall — large rectangular molding frames. */

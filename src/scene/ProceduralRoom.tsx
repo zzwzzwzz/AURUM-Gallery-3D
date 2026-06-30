@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { MeshReflectorMaterial } from '@react-three/drei';
 import { tokens } from '../theme/tokens';
 import { HALL } from '../data/layout';
-import { makeParquetTexture, makeCofferTexture, makePanelTexture } from './textures';
+import { makeParquetTexture, makeCeilingTexture, makePanelTexture } from './textures';
 
 const W = HALL.W;            // hall width (x: -4.4..4.4)
 const H = HALL.H;            // hall height (y: 0..4)
@@ -13,7 +13,7 @@ const CZ = (HALL.Z0 + HALL.Z1) / 2; // center z = -8
 // walls. Lighting lives in <CeilingLights /> (recessed downlights) + canvas ambient/hemi.
 export default function ProceduralRoom() {
   const parquet = useMemo(makeParquetTexture, []);
-  const coffer = useMemo(makeCofferTexture, []);
+  const ceiling = useMemo(makeCeilingTexture, []);
   const panel = useMemo(makePanelTexture, []);
 
   return (
@@ -33,10 +33,10 @@ export default function ProceduralRoom() {
         />
       </mesh>
 
-      {/* Light coffered ceiling */}
+      {/* Warm plaster ceiling with long recessed panels (replaces the waffle coffers) */}
       <mesh position={[0, H / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W, D]} />
-        <meshStandardMaterial map={coffer} roughness={0.9} />
+        <meshStandardMaterial map={ceiling} roughness={0.9} />
       </mesh>
 
       {/* Long paneled walls — identical material both sides (feedback #5). */}

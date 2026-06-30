@@ -46,7 +46,7 @@ export default function OutroCard() {
           tabIndex={a < 0.5 ? -1 : 0}
           style={{ color: tokens.color.warmWhite, fontStyle: 'italic', textDecoration: 'underline', textUnderlineOffset: 4, textDecorationColor: tokens.color.gold, pointerEvents: 'auto' }}
         >
-          Ziwen Zhou&nbsp;↗
+          Ziwen Zhou
         </a>
       </div>
 
