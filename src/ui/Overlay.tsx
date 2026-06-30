@@ -1,4 +1,5 @@
 import { tokens } from '../theme/tokens';
+import ThemeToggle from './ThemeToggle';
 
 export default function Overlay() {
   // Return the visitor to the start of the walk. The gallery is driven by drei's
@@ -40,6 +41,7 @@ export default function Overlay() {
           <span className="u-mono u-hide-sm" style={{ fontSize: 11, color: tokens.color.muted, letterSpacing: '0.14em', whiteSpace: 'nowrap' }}>
             immersive · beta
           </span>
+          <ThemeToggle />
         </div>
       </header>
       <div className="u-mono" style={{ position: 'fixed', bottom: 18, right: 'clamp(16px,4vw,56px)', fontSize: 10, color: tokens.color.muted, pointerEvents: 'none', textAlign: 'right', lineHeight: 1.7, textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>

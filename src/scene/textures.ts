@@ -78,15 +78,16 @@ export function makeCeilingTexture(): THREE.Texture {
   return finish(c, [1, 4]); // 1 across the width, 4 long panels down the hall
 }
 
-/** Paneled warm-white wall — large rectangular molding frames. */
-export function makePanelTexture(): THREE.Texture {
+/** Paneled wall — large rectangular molding frames. Colors are passed in so the same
+ *  paneling can be baked in either the light (warm-white) or dark (greige) mood. */
+export function makePanelTexture(wall: string = tokens.color.wall, trim: string = tokens.color.wallTrim): THREE.Texture {
   const t = canvas(512);
-  if (!t) return flat(tokens.color.wall);
+  if (!t) return flat(wall);
   const { c, ctx } = t;
-  ctx.fillStyle = tokens.color.wall;
+  ctx.fillStyle = wall;
   ctx.fillRect(0, 0, 512, 512);
   const m = 48;
-  ctx.strokeStyle = tokens.color.wallTrim;
+  ctx.strokeStyle = trim;
   ctx.lineWidth = 6;
   ctx.strokeRect(m, m, 512 - 2 * m, 512 - 2 * m);
   ctx.lineWidth = 3;

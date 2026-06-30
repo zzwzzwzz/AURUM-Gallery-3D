@@ -27,6 +27,7 @@ import * as THREE from 'three';
 import { LEAN, type MountPoint } from '../data/layout';
 import type { Artwork } from '../data/artworks';
 import { tokens } from '../theme/tokens';
+import { LIGHTING } from '../theme/lighting';
 import { useGalleryStore } from '../store/galleryStore';
 import TextureErrorBoundary from './TextureErrorBoundary';
 
@@ -119,6 +120,8 @@ function FramePlaceholder({ mount }: { mount: MountPoint }) {
 
 export default function Painting({ mount, artwork }: PaintingProps) {
   const lightTarget = useMemo(() => new THREE.Object3D(), []);
+  const mode = useGalleryStore((s) => s.mode);
+  const L = LIGHTING[mode];
   // The hero (far-wall work) is the corridor's destination — give it a stronger,
   // wider key light so it stays bright at the vanishing point (feedback #3).
   const isHero = artwork.id === 9;
@@ -140,8 +143,8 @@ export default function Painting({ mount, artwork }: PaintingProps) {
         position={[0, isHero ? 2.6 : 2.2, 1.6]}
         target={lightTarget}
         angle={isHero ? 0.6 : 0.5}
-        penumbra={0.55}
-        intensity={isHero ? 4.6 : 3.6}
+        penumbra={L.spotPenumbra}
+        intensity={isHero ? L.spotIntensityHero : L.spotIntensity}
         distance={isHero ? 9 : 7}
         color={tokens.color.spot}
         castShadow={false}
