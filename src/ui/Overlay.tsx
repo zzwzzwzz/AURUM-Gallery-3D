@@ -21,16 +21,18 @@ export default function Overlay() {
   return (
     <>
       <header style={{ position: 'fixed', top: 'clamp(14px,2.4vh,22px)', left: 0, right: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '0 clamp(16px,4vw,56px)', pointerEvents: 'none', textShadow: '0 1px 10px rgba(0,0,0,0.55)' }}>
-        <h1 style={{ margin: 0 }}>
+        {/* h1 is a flex box so the button centers on the header line instead of riding the
+            tall default heading line-box (which dropped the logo ~3.5px below the menu). */}
+        <h1 style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
           <button
             onClick={goToStart}
             aria-label="AURUM 3D — back to the start"
-            style={{ all: 'unset', cursor: 'pointer', pointerEvents: 'auto', fontFamily: tokens.font.serif, fontWeight: 400, fontSize: 'clamp(15px,4.8vw,22px)', letterSpacing: 'clamp(0.1em,0.6vw,0.18em)', whiteSpace: 'nowrap', color: tokens.color.warmWhite }}
+            style={{ all: 'unset', cursor: 'pointer', pointerEvents: 'auto', fontFamily: tokens.font.serif, fontWeight: 400, fontSize: 'clamp(15px,4.8vw,22px)', lineHeight: 1, letterSpacing: 'clamp(0.1em,0.6vw,0.18em)', whiteSpace: 'nowrap', color: tokens.color.warmWhite }}
           >
             <span style={{ color: tokens.color.gold }}>—</span> AURUM 3D <span style={{ color: tokens.color.gold }}>—</span>
           </button>
         </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px,2vw,22px)', alignSelf: 'center', pointerEvents: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px,2vw,22px)', pointerEvents: 'auto' }}>
           <a
             href="https://aurumgallery.ziwenzhou.com"
             className="u-mono"
